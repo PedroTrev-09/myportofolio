@@ -235,6 +235,49 @@ body:has(#theme-toggle:checked) .theme-switch-thumb { transform: translateX(22px
 }
 @keyframes fillbar { from { width: 0; } to { width: var(--fill); } }
 
+@media (max-width: 860px) {
+    .site-nav {
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem 1.5rem 1.5rem;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        display: none;
+    }
+    body:has(#nav-toggle:checked) .site-nav { display: flex; }
+    .hamburger { display: flex; }
+    body:has(#nav-toggle:checked) .hamburger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    body:has(#nav-toggle:checked) .hamburger span:nth-child(2) { opacity: 0; }
+    body:has(#nav-toggle:checked) .hamburger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .about-grid, .skills-grid, .contact-inner { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-photo { max-width: 220px; margin: 0 auto; order: -1; }
+    .social-links { justify-content: flex-start; }
+    .about-stats { grid-template-columns: 1fr 1fr; }
+    .about-stats .stat-card:last-child { grid-column: 1 / -1; }
+    .timeline-period { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .scroll-cue span { animation: none; top: 12px; }
+    .hero-anim { animation: none; opacity: 1; transform: none; }
+}
+
+@media print {
+    .site-header, .scroll-cue, .header-actions, .filter-tabs,
+    .skip-link, .back-to-top, .hero::before, .photo-panel { display: none !important; }
+    body { background: #fff; color: #000; }
+    a { color: #000; text-decoration: underline; }
+    .project-card, .timeline-item, .stat-card { box-shadow: none; border: 1px solid #ccc; }
+}
+
 .social-links { display: flex; gap: .65rem; flex-wrap: wrap; }
 .social-link {
     display: inline-block;
@@ -435,6 +478,55 @@ body:has(#theme-toggle:checked) .theme-switch-thumb { transform: translateX(22px
 .projects-panel:has(#tab-fashion:checked)   .project-card:not(.cat-fashion)   { display: none; }
 .projects-panel:has(#tab-design:checked) .project-card:not(.cat-design) { display: none; }
 
+
+.project-img {
+   width: 100%;
+   height: 180px;
+   object-fit: cover;
+   display: block;
+   border-bottom: 1px solid var(--line);
+}
+
+.stretched-link { text-decoration: none; color: inherit; }
+.stretched-link::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+
+.modal {
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem;
+    visibility: hidden; opacity: 0;
+    transition: visibility 0s linear 0.25s, opacity 0.25s ease;
+}
+.modal:target {
+    visibility: visible; opacity: 1;
+    transition-delay: 0s;
+}
+.modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    cursor: default;
+}
+.modal-content {
+    position: relative; background: var(--bg);
+    border-radius: var(--radius-lg); padding: 2rem;
+    max-width: 650px; width: 100%; max-height: 85vh;
+    overflow-y: auto; z-index: 1000;
+    border: 1px solid var(--line);
+    transform: translateY(20px); transition: transform 0.3s ease;
+}
+.modal:target .modal-content { transform: translateY(0); }
+.modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    font-size: 1.5rem; text-decoration: none; color: var(--ink);
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    background: var(--bg-alt); border-radius: 50%;
+    border: 1px solid var(--line); transition: background var(--transition);
+}
+.modal-close:hover { background: var(--sunset); color: #fff; border-color: var(--sunset); }
+.modal-content img { width: 100%; border-radius: var(--radius-md); margin-bottom: 1.5rem; object-fit: cover; max-height: 300px; }
+.modal-content h3 { font-size: 1.6rem; margin-bottom: .8rem; }
+.modal-content p { color: var(--ink-soft); line-height: 1.7; }
 
 .contact { padding: 4.5rem 0; background: var(--bg-alt); }
 
