@@ -1,15 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#E98B50">
-    <meta name="description" content="Portfolio of Haikal Rafka — Information Systems student at Universitas Indonesia.">
-    <title>Haikal Rafka — Portfolio</title>
+    <meta name="description" content="Portfolio of {{ name }} — Information Systems student at Universitas Indonesia.">
+    <title>{{ name }} — Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./static/css/style.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body id="top">
 
@@ -20,12 +21,12 @@
 
     <header class="site-header">
         <div class="container header-inner">
-            <a href="#top" class="brand">Haikal Rafka</a>
+            <a href="#top" class="brand">{{ headerName }}</a>
 
             <nav class="site-nav" aria-label="Primary">
                 <a href="#about">About</a>
                 <a href="#skills">Skills</a>
-                <a href="#experience">Experience</a>
+                <a href="{% url 'main:show_experience' %}">Experience</a>
                 <a href="#projects">Projects</a>
                 <a href="#contact">Contact</a>
             </nav>
@@ -46,18 +47,18 @@
             <div class="container hero-grid">
                 <div class="hero-copy">
                     <p class="hero-kicker hero-anim">Information Systems &middot; Universitas Indonesia</p>
-                    <h1 class="hero-title hero-anim">Haikal Rafka</h1>
+                    <h1 class="hero-title hero-anim">{{ name }}</h1>
                     <p class="hero-tagline hero-anim">Information Systems student at Universitas Indonesia.</p>
-                    <p class="hero-bio hero-anim">Originally from Lombok. Currently balancing my third-semester coursework with building a B2B platform for campus event management. I enjoy crafting digital solutions from the ground up.</p>
+                    <p class="hero-bio hero-anim">{{ bio }}</p>
 
                     <dl class="meta-list hero-anim">
                         <div class="meta-row">
                             <dt>NPM</dt>
-                            <dd>2506553383</dd>
+                            <dd>{{ npm }}</dd>
                         </div>
                         <div class="meta-row">
                             <dt>Program</dt>
-                            <dd>S1 Sistem Informasi</dd>
+                            <dd>{{ study_program }}</dd>
                         </div>
                         <div class="meta-row">
                             <dt>Focus</dt>
@@ -74,7 +75,7 @@
 
                 <div class="hero-photo hero-anim">
                     <div class="photo-panel" aria-hidden="true"></div>
-                    <img class="avatar" src="./static/img/rafka.png" alt="Photo of Haikal Rafka">
+                    <img class="avatar" src="{% static 'img/rafka.png' %}" alt="Photo of {{ name }}">
                 </div>
             </div>
 
@@ -85,8 +86,7 @@
                 <h2>A bit more about the work behind the title</h2>
 
                 <div class="about-copy">
-                    <p>I am a versatile graphic designer and Information Systems student at Universitas Indonesia. With freelance experience in branding, visual communication, and photography, I thrive in both independent projects and team settings.</p>
-                    <p>I blend creative design with structured project management to deliver high-quality, impactful results tailored to client needs.</p>
+                    <p>{{ about }}</p>
                 </div>
 
                 <div class="about-stats">
@@ -158,93 +158,7 @@
                 </div>
             </div>
         </section>
-        <section class="experience" id="experience">
-            <div class="container">
-                <h2>Internship &amp; Experience</h2>
-                <p class="section-sub">Click a role to see the details.</p>
-
-                <div class="timeline">
-                    <details class="timeline-item" open>
-                        <summary>
-                            <span class="timeline-role">VERTURA &mdash; Graphic Designer & Photographer</span>
-                            <span class="timeline-period">2024 &mdash; Now</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Mengelola visual branding secara konsisten di seluruh platform media sosial dan material promosi fisik.</li>
-                                <li>Bertindak sebagai manajer proyek untuk mengoordinasikan tim fotografer, videografer, dan desainer guna menghasilkan konten kreatif tepat waktu.</li>
-                                <li>Melakukan sesi foto produk yang meningkatkan rasio klik-tayang iklan digital sebesar 15%.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">LOKA ORGANIZER &mdash; Event Organizer</span>
-                            <span class="timeline-period">2023 &mdash; 2024</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Menyusun konsep acara kreatif, mengelola flow-of-event (rundown), dan berkoordinasi langsung dengan pihak vendor eksternal.</li>
-                                <li>Mengatur penempatan logistik penting panggung, sistem tata suara, pencahayaan, serta manajemen kontrol kerumunan di area festival.</li>
-                                <li>Memimpin operasional lapangan hari H untuk memastikan transisi pengisi acara berjalan lancar tanpa kendala teknis.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">PT SASTRA BARRA TOGA &mdash; 3D Modeling Internship</span>
-                            <span class="timeline-period">2024</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Mengerjakan visualisasi 3D representatif untuk stan pameran industri dan panggung pertunjukan menggunakan SketchUp.</li>
-                                <li>Bekerja sama erat dengan tim arsitektur internal untuk memastikan presisi dimensi spasial panggung asli.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">AKALA SIGNATURE &mdash; F&B Internship</span>
-                            <span class="timeline-period">2022 &mdash; 2023</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Berpartisipasi aktif dalam merancang strategi loyalitas pelanggan lokal guna meningkatkan retensi pengunjung kafe sebesar 15%.</li>
-                                <li>Mengintegrasikan feedback pelanggan ke dalam peningkatan visualisasi merek dan penyempurnaan desain kemasan produk kuliner.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">BSLU MATARAM &mdash; Social Internship</span>
-                            <span class="timeline-period">2023</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Merancang dan memfasilitasi kegiatan harian bagi lansia, seperti senam pagi ringan, terapi kognitif (puzzle/teka-teki), dan kelas seni untuk menjaga fungsi motorik serta kognitif.</li>
-                                <li>Menjadi pendengar aktif bagi para lansia untuk memberikan dukungan emosional, mengurangi rasa kesepian, dan membangun ikatan sosial yang positif.</li>
-                                <li>Mengoordinasikan jadwal pemeriksaan kesehatan rutin bekerja sama dengan tenaga medis balai sosial serta membantu mendampingi lansia saat pemeriksaan.</li>
-                            </ul>
-                        </div>
-                    </details>
-                </div>
-            </div>
-        </section>
-
+        
         <section class="projects" id="projects">
             <div class="container">
                 <h2>Selected projects</h2>
@@ -265,7 +179,7 @@
 
                     <div class="projects-grid">
                         <article class="project-card cat-fashion">
-                            <img src="./static/img/monte.png" alt="Monte De Carlo" class="project-img">
+                            <img src="{% static 'img/monte.png' %}" alt="Monte De Carlo" class="project-img">
                             <div class="project-body">
                                 <h3><a href="#modal-monte" class="stretched-link">Monte De Carlo</a></h3>
                                 <p>Desain identitas visual, panduan logo, serta arah grafis modern komprehensif untuk peluncuran Monte de Carlo.</p>
@@ -276,7 +190,7 @@
                         </article>
 
                         <article class="project-card cat-event">
-                            <img src="./static/img/sketchup.png" alt="The Triumphant Oddyssey" class="project-img">
+                            <img src="{% static 'img/sketchup.png' %}" alt="The Triumphant Oddyssey" class="project-img">
                             <div class="project-body">
                                 <h3><a href="#modal-oddyssey" class="stretched-link">The Triumphant Oddyssey</a></h3>
                                 <p>Proyek event mulai dari perencanaan anggaran dan logistik hingga pengawasan operasional di lapangan.</p>
@@ -294,7 +208,7 @@
             <a href="#projects" class="modal-overlay" aria-label="Tutup pop-up"></a>
             <div class="modal-content">
                 <a href="#projects" class="modal-close" aria-label="Tutup pop-up">&times;</a>
-                <img src="./static/img/monte.png" alt="Monte De Carlo">
+                <img src="{% static 'img/monte.png' %}" alt="Monte De Carlo">
                 <h3>Monte De Carlo</h3>
                 <p>Selama berkecimpung di VERTURA (2024–Sekarang) sebagai Graphic Designer & Photographer sekaligus Project Manager, saya memadukan keahlian kreatif dan manajerial untuk menghasilkan karya visual berkualitas tinggi dan memastikan kelancaran eksekusi proyek. Dalam ranah kreatif, saya merancang berbagai aset visual, mulai dari logo, desain panggung acara, hingga grafis pakaian yang selaras dengan identitas merek klien, serta memproduksi kurasi fotografi profesional dalam kategori potret, lanskap, dan komersial. Sementara itu, dalam peran manajerial, saya bertanggung jawab menetapkan tujuan, ruang lingkup, dan timeline proyek untuk memastikan hasil kerja yang terstruktur. Saya memimpin koordinasi lintas divisi (desain, teknik, dan pemasaran), mendelegasikan tugas sesuai keahlian tim untuk mengoptimalkan produktivitas.</p>
             </div>
@@ -304,7 +218,7 @@
             <a href="#projects" class="modal-overlay" aria-label="Tutup pop-up"></a>
             <div class="modal-content">
                 <a href="#projects" class="modal-close" aria-label="Tutup pop-up">&times;</a>
-                <img src="./static/img/sketchup.png" alt="The Triumphant Oddyssey">
+                <img src="{% static 'img/sketchup.png' %}" alt="The Triumphant Oddyssey">
                 <h3>The Triumphant Oddyssey</h3>
                 <p>Sebagai penanggung jawab The Triumphant Odyssey 2025, saya sukses mengelola seluruh siklus proyek acara, mulai dari manajemen anggaran dan logistik hingga eksekusi di hari H. Berfokus pada kolaborasi lintas pihak, saya memelihara hubungan baik dengan vendor dan sponsor untuk mendukung kelancaran acara. Di lapangan, saya memimpin koordinasi operasional dan panggung secara langsung serta sigap mengatasi berbagai tantangan secara cepat dan tepat. Proyek ini ditutup dengan penyusunan laporan evaluasi mendalam yang berbasis pada analisis hasil untuk mengoptimalkan efektivitas strategi acara di masa depan.</p>
             </div>
@@ -332,7 +246,7 @@
 
     <footer class="site-footer">
         <div class="container footer-inner">
-            <p>&copy; 2026 Haikal Rafka. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
             <a href="#top" class="back-to-top">Back to top</a>
         </div>
     </footer>
