@@ -80,3 +80,6 @@ Berdasarkan batasan tersebut, pada iterasi proyek (Django) selanjutnya, saya pal
 
 * **CMS/Database-driven Portfolio:** Membuat model (MVT Django) untuk entitas *Project* dan *Experience*, lalu mengeluarkannya ke *template* menggunakan *looping* (`{% for project in projects %}`). Dengan ini, penambahan proyek baru cukup dilakukan via Django Admin tanpa menyentuh kode HTML lagi.
 * **Dynamic Contact Form:** Membuat *form* kontak sungguhan berbasis metode POST yang dapat menangani data secara asinkron, memvalidasi input, dan mengirim pesan langsung ke sistem *backend* tanpa melempar pengguna ke aplikasi email pihak ketiga.
+
+### Proggress Update
+**Tutorial 02 (done)**
