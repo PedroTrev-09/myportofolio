@@ -27,7 +27,7 @@
                 <a href="{% url 'main:show_main' %}#about">About</a>
                 <a href="{% url 'main:show_main' %}#skills">Skills</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_main' %}#projects">Projects</a>
+                <a href="{% url 'main:show_project' %}">Projects</a>
                 <a href="{% url 'main:show_main' %}#contact">Contact</a>
             </nav>
 
@@ -67,8 +67,6 @@
                     {% empty %}
                         <p style="color: var(--ink-soft); font-style: italic;">Belum ada pengalaman.</p>
                     {% endfor %}
-                </div>
-                    </details>
                 </div>
             </div>
         </section>

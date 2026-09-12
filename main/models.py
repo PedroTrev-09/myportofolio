@@ -27,3 +27,25 @@ class Experience(models.Model):
     @property
     def is_ongoing(self):
         return self.ended_at is None
+
+class Project(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    short_description = models.TextField()
+    full_description = models.TextField()
+    
+    image_url = models.CharField(max_length=255) 
+    
+    category = models.CharField(max_length=50) 
+    
+    tags = models.CharField(max_length=255) 
+    created_at = models.DateField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.title
+    
+    @property
+    def tags_list(self):
+        if self.tags:
+            return [tag.strip() for tag in self.tags.split(',')]
+        return []
