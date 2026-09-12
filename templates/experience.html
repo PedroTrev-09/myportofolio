@@ -48,83 +48,26 @@
                 <h2>Internship &amp; Experience</h2>
                 <p class="section-sub">Click a role to see the details.</p>
 
-                <div class="timeline">
-                    <details class="timeline-item" open>
-                        <summary>
-                            <span class="timeline-role">VERTURA &mdash; Graphic Designer & Photographer</span>
-                            <span class="timeline-period">2024 &mdash; Present</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Mengelola visual branding secara konsisten di seluruh platform media sosial dan material promosi fisik.</li>
-                                <li>Bertindak sebagai manajer proyek untuk mengoordinasikan tim fotografer, videografer, dan desainer guna menghasilkan konten kreatif tepat waktu.</li>
-                                <li>Melakukan sesi foto produk yang meningkatkan rasio klik-tayang iklan digital sebesar 15%.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">LOKA ORGANIZER &mdash; Event Organizer</span>
-                            <span class="timeline-period">2023 &mdash; 2024</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Menyusun konsep acara kreatif, mengelola flow-of-event (rundown), dan berkoordinasi langsung dengan pihak vendor eksternal.</li>
-                                <li>Mengatur penempatan logistik penting panggung, sistem tata suara, pencahayaan, serta manajemen kontrol kerumunan di area festival.</li>
-                                <li>Memimpin operasional lapangan hari H untuk memastikan transisi pengisi acara berjalan lancar tanpa kendala teknis.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">PT SASTRA BARRA TOGA &mdash; 3D Modeling Internship</span>
-                            <span class="timeline-period">2024</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Mengerjakan visualisasi 3D representatif untuk stan pameran industri dan panggung pertunjukan menggunakan SketchUp.</li>
-                                <li>Bekerja sama erat dengan tim arsitektur internal untuk memastikan presisi dimensi spasial panggung asli.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">AKALA SIGNATURE &mdash; F&B Internship</span>
-                            <span class="timeline-period">2022 &mdash; 2023</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Berpartisipasi aktif dalam merancang strategi loyalitas pelanggan lokal guna meningkatkan retensi pengunjung kafe sebesar 15%.</li>
-                                <li>Mengintegrasikan feedback pelanggan ke dalam peningkatan visualisasi merek dan penyempurnaan desain kemasan produk kuliner.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="timeline-item">
-                        <summary>
-                            <span class="timeline-role">BSLU MATARAM &mdash; Social Internship</span>
-                            <span class="timeline-period">2023</span>
-                            <span class="chevron" aria-hidden="true">&#8964;</span>
-                        </summary>
-                        <div class="timeline-body">
-                            <p>Lombok, NTB</p>
-                            <ul>
-                                <li>Merancang dan memfasilitasi kegiatan harian bagi lansia, seperti senam pagi ringan, terapi kognitif (puzzle/teka-teki), dan kelas seni untuk menjaga fungsi motorik serta kognitif.</li>
-                                <li>Menjadi pendengar aktif bagi para lansia untuk memberikan dukungan emosional, mengurangi rasa kesepian, dan membangun ikatan sosial yang positif.</li>
-                                <li>Mengoordinasikan jadwal pemeriksaan kesehatan rutin bekerja sama dengan tenaga medis balai sosial serta membantu mendampingi lansia saat pemeriksaan.</li>
-                            </ul>
-                        </div>
+               <div class="timeline">
+                    {% for experience in experience_list %}
+                        <details class="timeline-item" {% if forloop.first %}open{% endif %}>
+                            <summary>
+                                <span class="timeline-role">{{ experience.title }}</span>
+                                <span class="timeline-period">
+                                    {{ experience.started_at|date:"Y" }} &mdash; 
+                                    {% if experience.is_ongoing %}Present{% else %}{{ experience.ended_at|date:"Y" }}{% endif %}
+                                </span>
+                                <span class="chevron" aria-hidden="true">&#8964;</span>
+                            </summary>
+                            <div class="timeline-body">
+                                <p>{{ experience.location }}</p>
+                                {{ experience.description|safe }}
+                            </div>
+                        </details>
+                    {% empty %}
+                        <p style="color: var(--ink-soft); font-style: italic;">Belum ada pengalaman.</p>
+                    {% endfor %}
+                </div>
                     </details>
                 </div>
             </div>
