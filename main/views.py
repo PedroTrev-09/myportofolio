@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from main.models import Experience
+from main.models import Experience, Project
 
 def show_main(request):
     context = {
@@ -25,3 +26,12 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
+def show_project(request):
+    projects = Project.objects.all().order_by('-created_at')
+    
+    context = {
+        "headerName" : "Haikal Rafka",
+        "name": "Haikal Rafka A Rahman",
+        "project_list": projects,
+    }
+    return render(request, "project.html", context)
