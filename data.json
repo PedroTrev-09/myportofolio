@@ -1,0 +1,93 @@
+[
+{
+  "model": "main.experience",
+  "pk": "0d7f3fab-1d35-4b0f-a270-d9dee69924fd",
+  "fields": {
+    "title": "VERTURA — Graphic Designer & Photographer",
+    "location": "Lombok, NTB",
+    "description": "<ul><li>Mengelola visual branding secara konsisten di seluruh platform media sosial dan material promosi fisik.</li><li>Bertindak sebagai manajer proyek untuk mengoordinasikan tim fotografer, videografer, dan desainer guna menghasilkan konten kreatif tepat waktu.</li><li>Melakukan sesi foto produk yang meningkatkan rasio klik-tayang iklan digital sebesar 15%.</li></ul>",
+    "category": "freelance",
+    "thumbnail": null,
+    "started_at": "2024-01-01",
+    "ended_at": null
+  }
+},
+{
+  "model": "main.experience",
+  "pk": "67f514f7-1d9d-45fd-ad3b-2c04ba75c290",
+  "fields": {
+    "title": "AKALA SIGNATURE — F&B Internship",
+    "location": "Lombok, NTB",
+    "description": "<ul><li>Berpartisipasi aktif dalam merancang strategi loyalitas pelanggan lokal guna meningkatkan retensi pengunjung kafe sebesar 15%.</li><li>Mengintegrasikan feedback pelanggan ke dalam peningkatan visualisasi merek dan penyempurnaan desain kemasan produk kuliner.</li></ul>",
+    "category": "internship",
+    "thumbnail": null,
+    "started_at": "2022-01-01",
+    "ended_at": "2023-01-01"
+  }
+},
+{
+  "model": "main.experience",
+  "pk": "763cbf59-6042-497c-9980-db74dc20c046",
+  "fields": {
+    "title": "LOKA ORGANIZER — Event Organizer",
+    "location": "Lombok, NTB",
+    "description": "<ul><li>Menyusun konsep acara kreatif, mengelola flow-of-event (rundown), dan berkoordinasi langsung dengan pihak vendor eksternal.</li><li>Mengatur penempatan logistik penting panggung, sistem tata suara, pencahayaan, serta manajemen kontrol kerumunan di area festival.</li><li>Memimpin operasional lapangan hari H untuk memastikan transisi pengisi acara berjalan lancar tanpa kendala teknis.</li></ul>",
+    "category": "part-time",
+    "thumbnail": null,
+    "started_at": "2023-01-01",
+    "ended_at": "2024-01-01"
+  }
+},
+{
+  "model": "main.experience",
+  "pk": "7dcf8c10-d8fc-4364-b1a3-34837c15eea8",
+  "fields": {
+    "title": "PT SASTRA BARRA TOGA — 3D Modeling Internship",
+    "location": "Lombok, NTB",
+    "description": "<ul><li>Mengerjakan visualisasi 3D representatif untuk stan pameran industri dan panggung pertunjukan menggunakan SketchUp.</li><li>Bekerja sama erat dengan tim arsitektur internal untuk memastikan presisi dimensi spasial panggung asli.</li></ul>",
+    "category": "internship",
+    "thumbnail": null,
+    "started_at": "2024-01-01",
+    "ended_at": "2024-12-31"
+  }
+},
+{
+  "model": "main.experience",
+  "pk": "ebadd300-2699-4b69-bd6e-4cf01c557ade",
+  "fields": {
+    "title": "BSLU MATARAM — Social Internship",
+    "location": "Lombok, NTB",
+    "description": "<ul><li>Merancang dan memfasilitasi kegiatan harian bagi lansia, seperti senam pagi ringan, terapi kognitif (puzzle/teka-teki), dan kelas seni untuk menjaga fungsi motorik serta kognitif.</li><li>Menjadi pendengar aktif bagi para lansia untuk memberikan dukungan emosional, mengurangi rasa kesepian, dan membangun ikatan sosial yang positif.</li><li>Mengoordinasikan jadwal pemeriksaan kesehatan rutin bekerja sama dengan tenaga medis balai sosial serta membantu mendampingi lansia saat pemeriksaan.</li></ul>",
+    "category": "internship",
+    "thumbnail": null,
+    "started_at": "2023-01-01",
+    "ended_at": "2023-12-31"
+  }
+},
+{
+  "model": "main.project",
+  "pk": "9b1278f0-e605-464c-862c-9eefeea3812c",
+  "fields": {
+    "title": "Monte De Carlo",
+    "short_description": "Desain identitas visual, panduan logo, serta arah grafis modern komprehensif untuk peluncuran Monte de Carlo.",
+    "full_description": "Selama berkecimpung di VERTURA (2024–Sekarang) sebagai Graphic Designer & Photographer sekaligus Project Manager, saya memadukan keahlian kreatif dan manajerial untuk menghasilkan karya visual berkualitas tinggi dan memastikan kelancaran eksekusi proyek. Dalam ranah kreatif, saya merancang berbagai aset visual, mulai dari logo, desain panggung acara, hingga grafis pakaian yang selaras dengan identitas merek klien, serta memproduksi kurasi fotografi profesional dalam kategori potret, lanskap, dan komersial. Sementara itu, dalam peran manajerial, saya bertanggung jawab menetapkan tujuan, ruang lingkup, dan timeline proyek untuk memastikan hasil kerja yang terstruktur. Saya memimpin koordinasi lintas divisi (desain, teknik, dan pemasaran), mendelegasikan tugas sesuai keahlian tim untuk mengoptimalkan produktivitas.",
+    "image_url": "/static/img/monte.png",
+    "category": "fashion",
+    "tags": "Event, Promotion, Business",
+    "created_at": "2026-09-12"
+  }
+},
+{
+  "model": "main.project",
+  "pk": "d541909a-2076-4d45-b61c-e5cd1408f2f5",
+  "fields": {
+    "title": "The Triumphant Oddyssey",
+    "short_description": "Proyek event mulai dari perencanaan anggaran dan logistik hingga pengawasan operasional di lapangan.",
+    "full_description": "Sebagai penanggung jawab The Triumphant Odyssey 2025, saya sukses mengelola seluruh siklus proyek acara, mulai dari manajemen anggaran dan logistik hingga eksekusi di hari H. Berfokus pada kolaborasi lintas pihak, saya memelihara hubungan baik dengan vendor dan sponsor untuk mendukung kelancaran acara. Di lapangan, saya memimpin koordinasi operasional dan panggung secara langsung serta sigap mengatasi berbagai tantangan secara cepat dan tepat. Proyek ini ditutup dengan penyusunan laporan evaluasi mendalam yang berbasis pada analisis hasil untuk mengoptimalkan efektivitas strategi acara di masa depan.",
+    "image_url": "/static/img/sketchup.png",
+    "category": "event",
+    "tags": "3D Modelling, Management, Promotions",
+    "created_at": "2026-09-12"
+  }
+}
+]
