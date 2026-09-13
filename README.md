@@ -79,7 +79,47 @@ Batasan paling mendasar dari *static web* adalah skalabilitas konten dan minimny
 Berdasarkan batasan tersebut, pada iterasi proyek (Django) selanjutnya, saya paling ingin mempersiapkan fungsionalitas dinamis berupa:
 
 * **CMS/Database-driven Portfolio:** Membuat model (MVT Django) untuk entitas *Project* dan *Experience*, lalu mengeluarkannya ke *template* menggunakan *looping* (`{% for project in projects %}`). Dengan ini, penambahan proyek baru cukup dilakukan via Django Admin tanpa menyentuh kode HTML lagi.
-* **Dynamic Contact Form:** Membuat *form* kontak sungguhan berbasis metode POST yang dapat menangani data secara asinkron, memvalidasi input, dan mengirim pesan langsung ke sistem *backend* tanpa melempar pengguna ke aplikasi email pihak ketiga.
+* **Dynamic Contact Form:** Membuat *form* kontak sungguhan berbasis metode POST yang dapat menangani data secara asinkron, memvalidasi input, dan mengirim pesan langsung ke sistem *backend* tanpa melempar user ke aplikasi email pihak ketiga.
+
+## AI Disclosure & Prompting Strategy (Tugas 2 Update)
+
+Pada pengerjaan Tugas 2, saya menggunakan AI (Gemini) untuk *debugging* dan *troubleshooting*. Struktur MVT dan logika dasar tetap saya tulis sendiri berdasarkan pemahaman dari tutorial. Bantuan AI secara spesifik saya gunakan pada kasus-kasus berikut:
+
+1. **Debugging Error 500 & Routing Mismatch:** terdapat kesalahan pada tutorial 02 saya, dan masih ada beberapa konsep statis pada file saya.
+2. **Konflik CSS Stretched-Link & Z-Index:** Saya mengalami *glitch* kursor dan efek *hover* yang tidak stabil pada kartu proyek. AI membantu saya mengidentifikasi masalah *overflow* pada CSS pseudo-class dan menyarankan penambahan `position: relative;` serta `z-index` yang tepat pada *fieldset* kategori agar area klik tidak saling tumpang tindih.
+3. **Troubleshooting Terminal Truncation (Django Shell):** Saat memasukkan data proyek yang deskripsinya sangat panjang melalui *Django shell*, terminal saya terus menghasilkan `SyntaxError: unterminated string literal`. AI membantu saya menyadari bahwa ini adalah masalah limitasi *buffer/auto-indent* dari terminal bawaan (InteractiveConsole) yang memotong teks, dan menyarankan trik pemecahan variabel untuk mengatasinya.
+
+---
+
+### Tugas 2
+
+**1. Jelaskan alur yang terjadi ketika pengguna membuka halaman portofolio baru, mulai dari permintaan yang diterima proyek hingga data ditampilkan pada browser. Dalam jawabanmu, jelaskan peran urls.py proyek, urls.py aplikasi, view, model, dan template.**
+
+Ketika user membuka halaman `/project/` pada browser, alur MVT (*Model-View-Template*) yang terjadi adalah sebagai berikut:
+* **`urls.py` Proyek:** Permintaan pertama kali diterima oleh *routing* utama proyek. Pola URL akan dicocokkan, dan permintaan diteruskan (menggunakan fungsi `include()`) ke `urls.py`.
+* **`urls.py` Aplikasi:** Di dalam aplikasi `main`, *path* `project/` dicocokkan dengan rute yang memanggil fungsi *view* spesifik, yaitu `show_project`.
+* **`views.py` (View):** Fungsi `show_project` menerima *request* tersebut. Ia bertindak sebagai otak logika. View akan meminta data dari *database* dengan memanggil **Model**.
+* **`models.py` (Model):** Model `Project` merespons permintaan View dengan mengambil seluruh data proyek dari *database* (melalui ORM `Project.objects.all()`).
+* **Kembali ke View & Template:** View menyimpan sekumpulan data ini ke dalam *dictionary* bernama `context`. View kemudian memanggil fungsi `render()` untuk menyatukan data `context` tersebut dengan berkas HTML di **Template** (`project.html`). Template akan menggunakan *Django Template Language* (seperti `{% for %}`) untuk mencetak data secara dinamis. Hasil akhirnya berupa HTML yang dikembalikan sebagai respons untuk ditampilkan di browser user.
+
+**2. Mengapa data untuk bagian portofolio baru sebaiknya disimpan pada model dan tidak ditulis langsung di dalam template? Jelaskan dampaknya terhadap kemudahan pemeliharaan dan pengembangan aplikasi.**
+
+Menyimpan data di dalam Model (basis data) memisahkan antara lapisan data dan lapisan presentasi visual. Jika saya menulisnya langsung (hard-coded) di dalam *Template*, setiap kali ada proyek baru atau revisi tulisan, saya harus membongkar kode HTML secara manual. Hal ini rentan terhadap kesalahan (*typo* atau merusak tag penutup HTML) dan sangat tidak efisien.
+
+Dampaknya terhadap maintenance website sangat penting. Dengan menggunakan Model, update konten dapat dilakukan dengan mudah melalui Django Admin atau *shell* tanpa menyentuh *source code* interface sama sekali. Dari segi pengembangan, data yang terstruktur dalam basis data memungkinkan saya untuk menambahkan fitur-fitur lain dengan mudah, seperti fitur *search bar* dan filter dinamis.
+
+**3. Apa perbedaan fungsi makemigrations dan migrate pada Django? Berikan contoh perubahan model yang mengharuskanmu menjalankan kedua perintah tersebut.**
+
+* **`makemigrations`:** Berfungsi sebagai pembuat draf atau (*blueprint*). Perintah ini mendeteksi perubahan apa pun yang kita tulis di dalam `models.py` dan membuat sebuah berkas migrasi baru yang berisi instruksi perubahan tersebut.
+* **`migrate`:** Berfungsi sebagai eksekutor. Perintah ini membaca berkas (*blueprint*) yang dibuat oleh `makemigrations` dan menerapkannya ke dalam struktur basis data yang sebenarnya (seperti SQLite atau PostgreSQL).
+
+**Contoh Kasus:** Ketika saya membuat model `Project` baru, atau ketika saya menambahkan atribut baru seperti `category` dan `tags` pada model `Project` yang sudah ada. Saya harus menjalankan `makemigrations` agar Django mencatat penambahan kolom tersebut, lalu menjalankan `migrate` agar kolom `category` dan `tags` benar-benar dibuat dan bisa diisi di dalam tabel *database* SQLite saya.
 
 ### Proggress Update
+**Tutorial 01 (done)**
+
+**Individual Assignment 1 (done)**
+
 **Tutorial 02 (done)**
+
+**Individual Assignment 2 (done)**
