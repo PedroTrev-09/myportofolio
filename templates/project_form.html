@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block meta %}
+<title>Add Project - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+<main id="main-content">
+    <section class="projects" style="padding-top: 4rem; min-height: 80vh;">
+        <div class="container">
+            <h2>Add New Project</h2>
+            <p class="section-sub">Masukkan detail proyek.</p>
+
+            <div class="form-container" style="background: var(--card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--line); box-shadow: var(--shadow); max-width: 600px; margin-top: 2rem;">
+                <form method="POST" action="{% url 'main:create_project' %}">
+                    {% csrf_token %}
+                    
+                    {{ form.as_p }}
+                    
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                        <button type="submit" class="contact-link primary" style="background: var(--dusk); border-color: var(--dusk); border: none; cursor: pointer; font-size: 1rem;">Simpan Proyek</button>
+                        <a href="{% url 'main:show_project' %}" class="contact-link ghost">Batal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}
