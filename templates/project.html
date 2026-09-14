@@ -9,7 +9,7 @@
     <section class="projects" id="projects">
         <div class="container">
             <h2>Selected projects</h2>
-            <a href="{% url 'main:create_project' %}" class="contact-link primary" style="display: inline-block; margin-bottom: 1.5rem;">+ Tambah Proyek</a>
+            <a href="{% url 'main:create_project' %}" class="contact-link primary" style="display: inline-block; margin-bottom: 1.5rem;">+ Add Project</a>
 
             <p class="section-sub">A few things I've built. Filter by category, or leave it on "All".</p>
 
@@ -45,7 +45,7 @@
                             </div>
                         </article>
                     {% empty %}
-                        <p style="color: var(--ink-soft); font-style: italic;">Belum ada project yang ditambahkan.</p>
+                        <p style="color: var(--ink-soft); font-style: italic;">There are no projects to display.</p>
                     {% endfor %}
                 </div>
             </div>

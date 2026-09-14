@@ -1,7 +1,7 @@
 <button type="button" 
         class="btn-danger-ghost" 
         popovertarget="delete-project-{{ project.id }}">
-    Hapus Proyek
+    Delete Project
 </button>
 
 <div id="delete-project-{{ project.id }}" 
@@ -24,18 +24,18 @@
                 popovertargetaction="hide" 
                 aria-label="Tutup konfirmasi hapus">&times;</button>
                 
-        <h2 id="delete-project-title-{{ project.id }}" style="color: var(--heading);">Hapus Proyek?</h2>
-        <p>Apakah Anda yakin ingin menghapus <strong>{{ project.title }}</strong>?</p>
+        <h2 id="delete-project-title-{{ project.id }}" style="color: var(--heading);">Delete Project?</h2>
+        <p>Are you sure you want to delete <strong>{{ project.title }}</strong>?</p>
         
         <div class="project-delete-modal_actions">
             <button type="button" 
                     class="contact-link ghost" 
                     popovertarget="delete-project-{{ project.id }}" 
-                    popovertargetaction="hide">Batal</button>
+                    popovertargetaction="hide">Cancel</button>
             <form method="post" action="{% url 'main:delete_project' project.id %}" style="display: flex; gap: 0.75rem; align-items: center;">
                 {% csrf_token %}
                 <input type="password" name="secret_code" placeholder="My code?" required style="padding: 0.5rem; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); width: 120px;">
-                <button type="submit" class="btn-danger-fill">Ya, Hapus</button>
+                <button type="submit" class="btn-danger-fill">Yes, Delete</button>
             </form>
         </div>
     </div>
