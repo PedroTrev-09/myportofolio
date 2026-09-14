@@ -17,6 +17,16 @@
 </head>
 <body id="top">
 
+    {% if messages %}
+        <div class="toast-container">
+            {% for message in messages %}
+                <div class="toast-message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <a href="#main-content" class="visually-hidden skip-link">Skip to content</a>
 
     <input type="checkbox" id="theme-toggle" class="visually-hidden">

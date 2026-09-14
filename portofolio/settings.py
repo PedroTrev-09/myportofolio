@@ -155,3 +155,5 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+PORTFOLIO_SECRET = os.getenv("SECRET_CODE", "default_secret")

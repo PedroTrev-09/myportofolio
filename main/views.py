@@ -3,6 +3,8 @@ from main.models import Experience, Project
 from main.forms import ProjectForm
 from django.core import serializers
 from django.http import HttpResponse
+from django.conf import settings
+from django.contrib import messages
 
 def show_main(request):
     context = {
@@ -52,23 +54,28 @@ def show_project(request):
 
 def create_project(request):
     form = ProjectForm(request.POST or None)
-    
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return redirect("main:show_project")
-    
-    context = {
-        "headerName": "Haikal Rafka",
-        "name": "Haikal Rafka A Rahman",
-        "form": form
-    }
+
+    if request.method == "POST":
+        secret_code = request.POST.get('secret_code')
+
+        if secret_code == settings.PORTFOLIO_SECRET:
+            if form.is_valid():
+                form.save()
+                return redirect("main:show_project")
+        else:
+            messages.error(request, "bukan admin ya?, hahay.")
+
+    context = {"headerName": "Haikal Rafka", "name": "Haikal Rafka A Rahman", "form": form}
     return render(request, "project_form.html", context)
 
 def delete_project(request, id):
     project = get_object_or_404(Project, pk=id)
-    
     if request.method == "POST":
-        project.delete()
-        return redirect("main:show_project")
-        
+        secret_code = request.POST.get('secret_code')
+        if secret_code == settings.PORTFOLIO_SECRET.strip():
+            project.delete()
+            messages.success(request, "Proyek berhasil dihapus!")
+        else:
+            messages.error(request, "bukan admin ya?, hahay.")
+            
     return redirect("main:show_project")
