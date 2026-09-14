@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from main.models import Experience, Project
 from main.forms import ProjectForm
 from django.core import serializers
@@ -63,3 +63,12 @@ def create_project(request):
         "form": form
     }
     return render(request, "project_form.html", context)
+
+def delete_project(request, id):
+    project = get_object_or_404(Project, pk=id)
+    
+    if request.method == "POST":
+        project.delete()
+        return redirect("main:show_project")
+        
+    return redirect("main:show_project")

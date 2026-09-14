@@ -12,16 +12,26 @@
             <p class="section-sub">Masukkan detail proyek.</p>
 
             <div class="form-container" style="background: var(--card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--line); box-shadow: var(--shadow); max-width: 600px; margin-top: 2rem;">
-                <form method="POST" action="{% url 'main:create_project' %}">
+                
+                <form method="POST" action="{% url 'main:create_project' %}" class="project-form">
                     {% csrf_token %}
                     
-                    {{ form.as_p }}
+                    {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <p class="form-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
                     
                     <div style="margin-top: 2rem; display: flex; gap: 1rem;">
                         <button type="submit" class="contact-link primary" style="background: var(--dusk); border-color: var(--dusk); border: none; cursor: pointer; font-size: 1rem;">Simpan Proyek</button>
                         <a href="{% url 'main:show_project' %}" class="contact-link ghost">Batal</a>
                     </div>
                 </form>
+
             </div>
         </div>
     </section>

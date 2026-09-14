@@ -26,6 +26,7 @@
                                         <li>{{ tag }}</li>
                                     {% endfor %}
                                 </ul>
+                                {% include "components/project_delete_modal.html" with project=project %}
                             </div>
                         </article>
                     {% empty %}
