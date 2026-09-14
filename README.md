@@ -123,3 +123,5 @@ Dampaknya terhadap maintenance website sangat penting. Dengan menggunakan Model,
 **Tutorial 02 (done)**
 
 **Individual Assignment 2 (done)**
+
+**Tutorial 03 (done)**
