@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from main.models import Experience, Project
 from main.forms import ProjectForm
+from django.core import serializers
+from django.http import HttpResponse
 
 def show_main(request):
     context = {
@@ -26,8 +28,20 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
-def show_project(request):
+
+def get_projects_json(request):
     projects = Project.objects.all().order_by('-created_at')
+    projects_json = serializers.serialize("json", projects)
+    return HttpResponse(projects_json, content_type="application/json")
+
+def show_project(request):
+    json_response = get_projects_json(request)
+    
+    projects = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    projects = [project.object for project in projects]
     
     context = {
         "headerName" : "Haikal Rafka",
