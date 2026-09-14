@@ -1,81 +1,37 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#E98B50">
-    <meta name="description" content="Portfolio of {{ name }} — Information Systems student at Universitas Indonesia.">
-    <title>Experience - {{ name }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body id="top">
+{% extends "base.html" %}
 
-    <a href="#main-content" class="visually-hidden skip-link">Skip to content</a>
+{% block meta %}
+<title>Experience - {{ name }}</title>
+{% endblock meta %}
 
-    <input type="checkbox" id="theme-toggle" class="visually-hidden">
-    <input type="checkbox" id="nav-toggle" class="visually-hidden">
+{% block content %}
+<main id="main-content">
+    <section class="experience" id="experience">
+        <div class="container">
+            <h2>Internship &amp; Experience</h2>
+            <p class="section-sub">Click a role to see the details.</p>
 
-    <header class="site-header">
-        <div class="container header-inner">
-            <a href="#top" class="brand">{{ headerName }}</a>
-
-            <nav class="site-nav" aria-label="Primary">
-                <a href="{% url 'main:show_main' %}#about">About</a>
-                <a href="{% url 'main:show_main' %}#skills">Skills</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_project' %}">Projects</a>
-                <a href="{% url 'main:show_main' %}#contact">Contact</a>
-            </nav>
-
-            <div class="header-actions">
-                <label for="theme-toggle" class="theme-switch" aria-label="Switch between day and night theme">
-                    <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
-                </label>
-                <label for="nav-toggle" class="hamburger" aria-label="Open menu">
-                    <span></span><span></span><span></span>
-                </label>
+           <div class="timeline">
+                {% for experience in experience_list %}
+                    <details class="timeline-item" {% if forloop.first %}open{% endif %}>
+                        <summary>
+                            <span class="timeline-role">{{ experience.title }}</span>
+                            <span class="timeline-period">
+                                {{ experience.started_at|date:"Y" }} &mdash; 
+                                {% if experience.is_ongoing %}Present{% else %}{{ experience.ended_at|date:"Y" }}{% endif %}
+                            </span>
+                            <span class="chevron" aria-hidden="true">&#8964;</span>
+                        </summary>
+                        <div class="timeline-body">
+                            <p>{{ experience.location }}</p>
+                            {{ experience.description|safe }}
+                        </div>
+                    </details>
+                {% empty %}
+                    <p style="color: var(--ink-soft); font-style: italic;">Belum ada pengalaman.</p>
+                {% endfor %}
             </div>
         </div>
-    </header>
-
-    <main id="main-content">
-        <section class="experience" id="experience">
-            <div class="container">
-                <h2>Internship &amp; Experience</h2>
-                <p class="section-sub">Click a role to see the details.</p>
-
-               <div class="timeline">
-                    {% for experience in experience_list %}
-                        <details class="timeline-item" {% if forloop.first %}open{% endif %}>
-                            <summary>
-                                <span class="timeline-role">{{ experience.title }}</span>
-                                <span class="timeline-period">
-                                    {{ experience.started_at|date:"Y" }} &mdash; 
-                                    {% if experience.is_ongoing %}Present{% else %}{{ experience.ended_at|date:"Y" }}{% endif %}
-                                </span>
-                                <span class="chevron" aria-hidden="true">&#8964;</span>
-                            </summary>
-                            <div class="timeline-body">
-                                <p>{{ experience.location }}</p>
-                                {{ experience.description|safe }}
-                            </div>
-                        </details>
-                    {% empty %}
-                        <p style="color: var(--ink-soft); font-style: italic;">Belum ada pengalaman.</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container footer-inner">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-        </div>
-    </footer>
-</body>
-</html>
+    </section>
+</main>
+{% endblock content %}

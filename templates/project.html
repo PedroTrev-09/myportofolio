@@ -1,110 +1,64 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#E98B50">
-    <meta name="description" content="Portfolio of {{ name }} — Information Systems student at Universitas Indonesia.">
-    <title>Projects - {{ name }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body id="top">
+{% extends "base.html" %}
 
-    <a href="#main-content" class="visually-hidden skip-link">Skip to content</a>
+{% block meta %}
+<title>Projects - {{ name }}</title>
+{% endblock meta %}
 
-    <input type="checkbox" id="theme-toggle" class="visually-hidden">
-    <input type="checkbox" id="nav-toggle" class="visually-hidden">
+{% block content %}
+<main id="main-content">
+    <section class="projects" id="projects">
+        <div class="container">
+            <h2>Selected projects</h2>
+            <p class="section-sub">A few things I've built. Filter by category, or leave it on "All".</p>
 
-    <header class="site-header">
-        <div class="container header-inner">
-            <a href="#top" class="brand">{{ headerName }}</a>
+            <div class="projects-panel">
+                <fieldset class="filter-tabs" style="position: relative; z-index: 10;">
+                    <legend class="visually-hidden">Filter projects by category</legend>
+                    <input type="radio" name="project-filter" id="tab-all" class="visually-hidden" checked>
+                    <label for="tab-all">All</label>
+                                    
+                    <input type="radio" name="project-filter" id="tab-event" class="visually-hidden">
+                    <label for="tab-event">Events</label>
+                                    
+                    <input type="radio" name="project-filter" id="tab-fashion" class="visually-hidden">
+                    <label for="tab-fashion">Fashion Article</label>
+                                    
+                    <input type="radio" name="project-filter" id="tab-design" class="visually-hidden">
+                    <label for="tab-design">Design</label>
+                </fieldset>
 
-            <nav class="site-nav" aria-label="Primary">
-                <a href="{% url 'main:show_main' %}#about">About</a>
-                <a href="{% url 'main:show_main' %}#skills">Skills</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_project' %}">Projects</a>
-                <a href="{% url 'main:show_main' %}#contact">Contact</a>
-            </nav>
-
-            <div class="header-actions">
-                <label for="theme-toggle" class="theme-switch" aria-label="Switch between day and night theme">
-                    <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
-                </label>
-                <label for="nav-toggle" class="hamburger" aria-label="Open menu">
-                    <span></span><span></span><span></span>
-                </label>
-            </div>
-        </div>
-    </header>
-
-    <main id="main-content">
-        <section class="projects" id="projects">
-            <div class="container">
-                <h2>Selected projects</h2>
-                <p class="section-sub">A few things I've built. Filter by category, or leave it on "All".</p>
-
-                <div class="projects-panel">
-                    <fieldset class="filter-tabs" style="position: relative; z-index: 10;">
-                        <legend class="visually-hidden">Filter projects by category</legend>
-                        <input type="radio" name="project-filter" id="tab-all" class="visually-hidden" checked>
-                        <label for="tab-all">All</label>
-                                        
-                        <input type="radio" name="project-filter" id="tab-event" class="visually-hidden">
-                        <label for="tab-event">Events</label>
-                                        
-                        <input type="radio" name="project-filter" id="tab-fashion" class="visually-hidden">
-                        <label for="tab-fashion">Fashion Article</label>
-                                        
-                        <input type="radio" name="project-filter" id="tab-design" class="visually-hidden">
-                        <label for="tab-design">Design</label>
-                    </fieldset>
-
-                    <div class="projects-grid">
-                        {% for project in project_list %}
-                            <article class="project-card cat-{{ project.category }}" style="position: relative;">
-                                <img src="{{ project.image_url }}" alt="{{ project.title }}" class="project-img">
-                                <div class="project-body">
-                                    <h3><a href="#modal-{{ project.id }}" class="stretched-link">{{ project.title }}</a></h3>
-                                    <p>{{ project.short_description }}</p>
-                                    <ul class="tag-list">
-                                        {% for tag in project.tags_list %}
-                                            <li>{{ tag }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </article>
-                        {% empty %}
-                            <p style="color: var(--ink-soft); font-style: italic;">Belum ada project yang ditambahkan.</p>
-                        {% endfor %}
-                    </div>
+                <div class="projects-grid">
+                    {% for project in project_list %}
+                        <article class="project-card cat-{{ project.category }}" style="position: relative;">
+                            <img src="{{ project.image_url }}" alt="{{ project.title }}" class="project-img">
+                            <div class="project-body">
+                                <h3><a href="#modal-{{ project.id }}" class="stretched-link">{{ project.title }}</a></h3>
+                                <p>{{ project.short_description }}</p>
+                                <ul class="tag-list">
+                                    {% for tag in project.tags_list %}
+                                        <li>{{ tag }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <p style="color: var(--ink-soft); font-style: italic;">Belum ada project yang ditambahkan.</p>
+                    {% endfor %}
                 </div>
             </div>
-        </section>
-
-        {% for project in project_list %}
-        <div id="modal-{{ project.id }}" class="modal">
-            <a href="#!" class="modal-overlay" aria-label="Tutup pop-up"></a>
-            <div class="modal-content">
-                <a href="#!" class="modal-close" aria-label="Tutup pop-up">&times;</a>
-                <img src="{{ project.image_url }}" alt="{{ project.title }}">
-                <h3>{{ project.title }}</h3>
-                <p>{{ project.full_description|safe }}</p>
-            </div>
         </div>
-        {% endfor %}
-    </main>
+    </section>
 
-    <footer class="site-footer">
-        <div class="container footer-inner">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-            <a href="#top" class="back-to-top">Back to top</a>
+    {% for project in project_list %}
+    <div id="modal-{{ project.id }}" class="modal">
+        <a href="#!" class="modal-overlay" aria-label="Tutup pop-up"></a>
+        <div class="modal-content">
+            <a href="#!" class="modal-close" aria-label="Tutup pop-up">&times;</a>
+            <img src="{{ project.image_url }}" alt="{{ project.title }}">
+            <h3>{{ project.title }}</h3>
+            <p>{{ project.full_description|safe }}</p>
         </div>
-    </footer>
-
-</body>
-</html>
+    </div>
+    {% endfor %}
+</main>
+{% endblock content %}
