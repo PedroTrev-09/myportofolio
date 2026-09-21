@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block meta %}
+<title>{{ page_title }} - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+<main id="main-content">
+    <section class="experience" style="padding-top: 4rem; min-height: 80vh;">
+        <div class="container">
+            <h2>{{ page_title }}</h2>
+            <p class="section-sub">
+                {% if experience %}
+                    Update your experience details.
+                {% else %}
+                    Enter your experience details.
+                {% endif %}
+            </p>
+
+            <div class="form-container"
+                 style="background: var(--card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--line); box-shadow: var(--shadow); max-width: 600px; margin-top: 2rem;">
+
+                <form
+                    method="POST"
+                    action="{% if experience %}{% url 'main:update_experience' experience.id %}{% else %}{% url 'main:create_experience' %}{% endif %}"
+                    class="project-form"
+                >
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% for error in field.errors %}
+                                <p class="form-error">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        <label for="secret_code">What is my code?</label>
+
+                        <input
+                            type="password"
+                            name="secret_code"
+                            id="secret_code"
+                            required
+                            placeholder="My secret code"
+                        >
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <p class="form-error">{{ message }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="experience-form-actions">
+                        <button type="submit" class="contact-link primary">
+                            {{ submit_text }}
+                        </button>
+
+                        <a
+                            href="{% url 'main:show_experience' %}"
+                            class="contact-link ghost"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}

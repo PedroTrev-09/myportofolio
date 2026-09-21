@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from main.models import Experience, Project
-from main.forms import ProjectForm
+from main.forms import ProjectForm, ExperienceForm
 from django.core import serializers
 from django.http import HttpResponse
 from django.conf import settings
@@ -21,15 +21,98 @@ def show_main(request):
 
 
 def show_experience(request):
-    experiences = Experience.objects.all().order_by('-started_at')
-    
+    json_response = get_experiences_json(request)
+
+    experiences = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    experiences = [experience.object for experience in experiences]
+
     context = {
-        "headerName" : "Haikal Rafka",
+        "headerName": "Haikal Rafka",
         "name": "Haikal Rafka A Rahman",
-        "experience_list": experiences, 
+        "experience_list": experiences,
     }
+
     return render(request, "experience.html", context)
 
+def get_experiences_json(request):
+    experiences = Experience.objects.all().order_by('-started_at')
+    experiences_json = serializers.serialize("json", experiences)
+
+    return HttpResponse(
+        experiences_json,
+        content_type="application/json"
+    )
+
+def create_experience(request):
+    form = ExperienceForm(request.POST or None)
+
+    if request.method == "POST":
+        secret_code = request.POST.get("secret_code", "").strip()
+
+        if secret_code == settings.PORTFOLIO_SECRET.strip():
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Experience berhasil ditambahkan!")
+                return redirect("main:show_experience")
+        else:
+            messages.error(request, "bukan admin ya?, hahay.")
+
+    context = {
+        "headerName": "Haikal Rafka",
+        "name": "Haikal Rafka A Rahman",
+        "form": form,
+        "page_title": "Add Experience",
+        "submit_text": "Save Experience",
+    }
+
+    return render(request, "experience_form.html", context)
+
+def update_experience(request, id):
+    experience = get_object_or_404(Experience, pk=id)
+
+    form = ExperienceForm(
+        request.POST or None,
+        instance=experience
+    )
+
+    if request.method == "POST":
+        secret_code = request.POST.get("secret_code", "").strip()
+
+        if secret_code == settings.PORTFOLIO_SECRET.strip():
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Experience berhasil diperbarui!")
+                return redirect("main:show_experience")
+        else:
+            messages.error(request, "bukan admin ya?, hahay.")
+
+    context = {
+        "headerName": "Haikal Rafka",
+        "name": "Haikal Rafka A Rahman",
+        "form": form,
+        "experience": experience,
+        "page_title": "Edit Experience",
+        "submit_text": "Update Experience",
+    }
+
+    return render(request, "experience_form.html", context)
+
+def delete_experience(request, id):
+    experience = get_object_or_404(Experience, pk=id)
+
+    if request.method == "POST":
+        secret_code = request.POST.get("secret_code", "").strip()
+
+        if secret_code == settings.PORTFOLIO_SECRET.strip():
+            experience.delete()
+            messages.success(request, "Experience berhasil dihapus!")
+        else:
+            messages.error(request, "bukan admin ya?, hahay.")
+
+    return redirect("main:show_experience")
 
 def get_projects_json(request):
     projects = Project.objects.all().order_by('-created_at')

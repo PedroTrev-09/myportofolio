@@ -9,26 +9,76 @@
     <section class="experience" id="experience">
         <div class="container">
             <h2>Internship &amp; Experience</h2>
+            <a href="{% url 'main:create_experience' %}" class="contact-link primary experience-add">
+                + Add Experience
+            </a>
             <p class="section-sub">Click a role to see the details.</p>
 
            <div class="timeline">
                 {% for experience in experience_list %}
                     <details class="timeline-item" {% if forloop.first %}open{% endif %}>
+                    
                         <summary>
-                            <span class="timeline-role">{{ experience.title }}</span>
-                            <span class="timeline-period">
-                                {{ experience.started_at|date:"Y" }} &mdash; 
-                                {% if experience.is_ongoing %}Present{% else %}{{ experience.ended_at|date:"Y" }}{% endif %}
+                            <span class="timeline-role">
+                                {{ experience.title }}
                             </span>
+                        
+                            <span class="timeline-period">
+                                {{ experience.started_at|date:"Y" }}
+                                &mdash;
+                            
+                                {% if experience.is_ongoing %}
+                                    Present
+                                {% else %}
+                                    {{ experience.ended_at|date:"Y" }}
+                                {% endif %}
+                            </span>
+                        
                             <span class="chevron" aria-hidden="true">&#8964;</span>
                         </summary>
+                    
                         <div class="timeline-body">
+                        
                             <p>{{ experience.location }}</p>
+                        
                             {{ experience.description|safe }}
+                        
+                            <div class="experience-actions">
+                            
+                                <a
+                                    href="{% url 'main:update_experience' experience.id %}"
+                                    class="contact-link"
+                                >
+                                    Edit
+                                </a>
+                            
+                                <form
+                                    method="POST"
+                                    action="{% url 'main:delete_experience' experience.id %}"
+                                >
+                                    {% csrf_token %}
+                            
+                                    <input
+                                        type="password"
+                                        name="secret_code"
+                                        placeholder="My code?"
+                                        required
+                                        aria-label="Secret code for deleting {{ experience.title }}"
+                                    >
+                            
+                                    <button type="submit" class="btn-danger-fill">
+                                        Delete
+                                    </button>
+                                </form>
+                            
+                            </div>
+                        
                         </div>
                     </details>
                 {% empty %}
-                    <p style="color: var(--ink-soft); font-style: italic;">Belum ada pengalaman.</p>
+                    <p style="color: var(--ink-soft); font-style: italic;">
+                        There are no experiences to display.
+                    </p>
                 {% endfor %}
             </div>
         </div>

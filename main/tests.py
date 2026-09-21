@@ -74,4 +74,4 @@ class ProjectTest(TestCase):
     def test_empty_project_state(self):
         Project.objects.all().delete()
         response = self.client.get(reverse("main:show_project"))
-        self.assertContains(response, "Belum ada project yang ditambahkan.")
+        self.assertContains(response, "There are no projects to display.")
