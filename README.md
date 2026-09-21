@@ -115,6 +115,31 @@ Dampaknya terhadap maintenance website sangat penting. Dengan menggunakan Model,
 
 **Contoh Kasus:** Ketika saya membuat model `Project` baru, atau ketika saya menambahkan atribut baru seperti `category` dan `tags` pada model `Project` yang sudah ada. Saya harus menjalankan `makemigrations` agar Django mencatat penambahan kolom tersebut, lalu menjalankan `migrate` agar kolom `category` dan `tags` benar-benar dibuat dan bisa diisi di dalam tabel *database* SQLite saya.
 
+## AI Disclosure & Prompting Strategy (Tugas 3 Update)
+
+Saya menggunakan `ChatGPT` sebagai bantuan untuk memahami dan memeriksa implementasi materi Form & Data Delivery pada bagian Experience. Bantuan saya gunakan untuk mengecek struktur CRUD (`Create`, `Update`, dan `Delete`), implementasi JSON serialization, dan membantu melakukan debugging ketika test case mengalami kegagalan.
+
+Implementasi akhir tetap saya sesuaikan secara manual dengan struktur proyek yang sudah saya buat sebelumnya, termasuk menyesuaikan template, routing, validasi secret code, dan menghapus penggunaan thumbnail pada bagian Experience (karena thumbnail tidak masuk pada bagian experience).
+
+### Tugas 3
+
+**1. Jelaskan mengapa kita menggunakan ModelForm pada Django alih-alih membuat form HTML secara manual. Selain itu, jelaskan pula mengapa kita diwajibkan menambahkan `{% csrf_token %}` pada form tersebut!**
+
+Saya menggunakan `ModelForm` karena form tersebut dapat dibuat berdasarkan model Django yang sudah ada. Dengan demikian, field pada form dapat langsung merepresentasikan data pada model dan proses validasinya juga dapat ditangani oleh Django. Hal ini membuat kode lebih ringkas, terstruktur, dan mengurangi kebutuhan untuk menulis serta memvalidasi setiap field secara manual.
+
+`{% csrf_token %}` diperlukan pada form yang menggunakan method `POST` untuk memberikan perlindungan terhadap serangan Cross-Site Request Forgery (CSRF). Token tersebut memastikan request perubahan data berasal dari form pada aplikasi yang valid sehingga request tidak dapat sembarangan dikirim oleh situs lain.
+
+**2. Pada Tutorial 03, kita membahas format data JSON dan XML. Mengapa JSON lebih disukai dalam pengembangan aplikasi web modern dibandingkan XML?**
+
+JSON lebih disukai karena sintaksnya relatif sederhana dan lebih ringkas sehingga data lebih mudah dibaca dan diproses. Struktur JSON juga secara langsung merepresentasikan pasangan key-value dan array yang umum digunakan dalam aplikasi web. Selain itu, JSON banyak digunakan dalam pertukaran data melalui API sehingga lebih praktis digunakan antara backend dan frontend maupun antar sistem.
+
+**3. Jelaskan alur yang terjadi saat kamu menggunakan fungsi view untuk mengembalikan data portofoliomu dalam bentuk JSON. Mengapa kita perlu melakukan proses serialization pada model Django sebelum datanya dikembalikan?**
+
+Pada bagian Experience, view terlebih dahulu mengambil data `Experience` dari database menggunakan Django ORM. Object tersebut kemudian diproses menggunakan serializer Django untuk mengubah data model menjadi representasi JSON. JSON tersebut dapat dikembalikan melalui `HttpResponse` dengan `content_type` `application/json`.
+
+Pada halaman Experience, data JSON tersebut kemudian dibaca kembali dan dilakukan proses deserialization sehingga menjadi object Django yang dapat digunakan oleh template. Serialization diperlukan karena object model Django tidak dapat langsung dikirim sebagai JSON. Object tersebut harus terlebih dahulu diubah menjadi format data yang dapat direpresentasikan dan dikirim melalui response HTTP.
+
+
 ### Proggress Update
 **Tutorial 01 (done)**
 
@@ -125,3 +150,5 @@ Dampaknya terhadap maintenance website sangat penting. Dengan menggunakan Model,
 **Individual Assignment 2 (done)**
 
 **Tutorial 03 (done)**
+
+**Individual Assignment 3 (done)**
