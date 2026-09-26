@@ -1,37 +1,35 @@
 {% extends "base.html" %}
-
 {% block meta %}
-<title>Add Experience - {{ name }}</title>
+<title>Register - {{ name }}</title>
 {% endblock meta %}
 
 {% block content %}
 <main id="main-content">
     <section class="projects" style="padding-top: 4rem; min-height: 80vh;">
         <div class="container">
-            <h2>Add New Experience</h2>
-            <p class="section-sub">Insert Experience detail(internship, etc.).</p>
-
+            <h2>Make an account</h2>
             <div class="form-container" style="background: var(--card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--line); box-shadow: var(--shadow); max-width: 600px; margin-top: 2rem;">
-                
-                <form method="POST" action="{% url 'main:create_experience' %}" class="project-form">
+                <form method="post" action="{% url 'main:register' %}" class="project-form">
                     {% csrf_token %}
+                    {% for error in form.non_field_errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
                     
                     {% for field in form %}
                     <div class="form-group">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {{ field }}
+                        {% if field.help_text %}
+                            <div style="font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.2rem;">{{ field.help_text }}</div>
+                        {% endif %}
                         {% for error in field.errors %}
                             <p class="form-error">{{ error }}</p>
                         {% endfor %}
                     </div>
                     {% endfor %}
-
-                    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                        <button type="submit" class="contact-link primary" style="background: var(--dusk); border-color: var(--dusk); border: none; cursor: pointer; font-size: 1rem;">Save</button>
-                        <a href="{% url 'main:show_experience' %}" class="contact-link ghost">Cancel</a>
-                    </div>
+                    <button type="submit" class="contact-link primary" style="margin-top: 1rem; cursor: pointer; border: none; font-size: 1rem;"> Sign Up</button>
                 </form>
-
+                <p style="margin-top: 1rem;">Already have an account? <a href="{% url 'main:login' %}" style="color: var(--sunset); font-weight: bold;">Login here</a>.</p>
             </div>
         </div>
     </section>

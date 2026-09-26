@@ -781,3 +781,53 @@ body:has(#theme-toggle:checked) .btn-danger-fill {
     outline: 2px solid var(--dusk);
     border-color: var(--dusk);
 }
+.star-form {
+    display: inline;
+    margin: 0;
+}
+
+.button-star {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: inherit;
+}
+
+.button-star:hover, .button-star:focus-visible {
+    border-color: var(--sunset);
+    transform: translateY(-2px);
+}
+
+.button-star.is-starred {
+    background: var(--dusk);
+    color: #fff;
+    border-color: var(--dusk);
+}
+
+.button-star.is-starred:hover, .button-star.is-starred:focus-visible {
+    background: var(--sunset);
+    border-color: var(--sunset);
+}
+
+.star-count {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bg-alt);
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.button-star.is-starred .star-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}

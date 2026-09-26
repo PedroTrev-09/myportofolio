@@ -1,0 +1,41 @@
+<button type="button" 
+        class="btn-danger-ghost" 
+        popovertarget="delete-exp-{{ experience.id }}">
+    Delete
+</button>
+
+<div id="delete-exp-{{ experience.id }}" 
+     class="project-delete-modal" 
+     popover="auto" 
+     role="dialog" 
+     aria-modal="true" 
+     aria-labelledby="delete-exp-title-{{ experience.id }}">
+     
+    <button type="button" 
+            class="project-delete-modal_backdrop" 
+            popovertarget="delete-exp-{{ experience.id }}" 
+            popovertargetaction="hide" 
+            aria-label="Close delete confirmation"></button>
+            
+    <div class="project-delete-modal_content" style="background: var(--bg); color: var(--ink);">
+        <button type="button" 
+                class="project-delete-modal_close" 
+                popovertarget="delete-exp-{{ experience.id }}" 
+                popovertargetaction="hide" 
+                aria-label="Close delete confirmation">&times;</button>
+                
+        <h2 id="delete-exp-title-{{ experience.id }}" style="color: var(--heading);">Delete Experience?</h2>
+        <p>Make sure you want to delete <strong>{{ experience.title }}</strong>?</p>
+        
+        <div class="project-delete-modal_actions">
+            <button type="button" 
+                    class="contact-link ghost" 
+                    popovertarget="delete-exp-{{ experience.id }}" 
+                    popovertargetaction="hide">Cancel</button>
+            <form method="post" action="{% url 'main:delete_experience' experience.id %}" style="display: flex; gap: 0.75rem; align-items: center;">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger-fill">Yes, delete</button>
+            </form>
+        </div>
+    </div>
+</div>
