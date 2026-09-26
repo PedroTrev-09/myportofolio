@@ -10,7 +10,7 @@
         <div class="container">
             <h2>Internship &amp; Experience</h2>
             
-            {% if user.is_superuser %}
+            {% if user.is_superuser or is_editor %}
             <a href="{% url 'main:create_experience' %}" class="contact-link primary" style="display: inline-block; margin-bottom: 1.5rem;">+ Add Experience</a>
             {% endif %}
 
@@ -31,7 +31,7 @@
                             <p>{{ experience.location }}</p>
                             {{ experience.description|safe }}
                             
-                            {% if user.is_superuser %}
+                            {% if user.is_superuser or is_editor %}
                                 <div style="margin-top: 1rem;">
                                     {% include "components/experience_delete_modal.html" with experience=experience %}
                                 </div>

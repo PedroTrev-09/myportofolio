@@ -28,7 +28,17 @@ def show_main(request):
 
 def show_experience(request):
     experiences = Experience.objects.all().order_by('-started_at')
-    context = {"headerName": "Haikal Rafka", "name": "Haikal Rafka A Rahman", "experience_list": experiences}
+
+    user_is_editor = False
+    if request.user.is_authenticated:
+        user_is_editor = is_editor(request.user)
+
+    context = {
+        "headerName" : "Haikal Rafka",
+        "name": "Haikal Rafka A Rahman",
+        "experience_list": experiences, 
+        "is_editor": user_is_editor
+    }
     return render(request, "experience.html", context)
 
 def get_projects_json(request):
@@ -40,7 +50,17 @@ def show_project(request):
     json_response = get_projects_json(request)
     projects = serializers.deserialize("json", json_response.content.decode("utf-8"))
     projects = [project.object for project in projects]
-    context = {"headerName": "Haikal Rafka", "name": "Haikal Rafka A Rahman", "project_list": projects}
+
+    user_is_editor = False
+    if request.user.is_authenticated:
+        user_is_editor = is_editor(request.user)
+
+    context = {
+        "headerName" : "Haikal Rafka",
+        "name": "Haikal Rafka A Rahman",
+        "project_list": projects,
+        "is_editor": user_is_editor
+    }
     return render(request, "project.html", context)
 
 def register(request):
