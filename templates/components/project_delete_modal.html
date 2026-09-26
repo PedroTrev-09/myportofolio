@@ -1,7 +1,7 @@
 <button type="button" 
         class="btn-danger-ghost" 
         popovertarget="delete-project-{{ project.id }}">
-    Delete Project
+    Delete
 </button>
 
 <div id="delete-project-{{ project.id }}" 
@@ -13,7 +13,7 @@
      
     <button type="button" 
             class="project-delete-modal_backdrop" 
-            popovertarget="delete-project-{{ project.id }}" 
+            popovertarget="delete-project-{{ project.id }}"
             popovertargetaction="hide" 
             aria-label="Tutup konfirmasi hapus"></button>
             
@@ -34,7 +34,6 @@
                     popovertargetaction="hide">Cancel</button>
             <form method="post" action="{% url 'main:delete_project' project.id %}" style="display: flex; gap: 0.75rem; align-items: center;">
                 {% csrf_token %}
-                <input type="password" name="secret_code" placeholder="My code?" required style="padding: 0.5rem; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); width: 120px;">
                 <button type="submit" class="btn-danger-fill">Yes, Delete</button>
             </form>
         </div>

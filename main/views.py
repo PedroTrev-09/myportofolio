@@ -67,7 +67,7 @@ def register(request):
     form = UserCreationForm(request.POST or None) 
     if request.method == "POST" and form.is_valid():
         form.save() 
-        messages.success(request, "Akun berhasil dibuat. Silakan login.") 
+        messages.success(request, "Account successfully made. Login again") 
         return redirect("main:login") 
     context = {"name": "Haikal Rafka A Rahman", "form": form}
     return render(request, "register.html", context)
@@ -109,7 +109,7 @@ def delete_project(request, id):
     project = get_object_or_404(Project, pk=id)
     if request.method == "POST":
         project.delete()
-        messages.success(request, "Proyek berhasil dihapus!")
+        messages.success(request, "Project deleted")
     return redirect("main:show_project")
 
 @login_required(login_url="/login/") 
@@ -143,7 +143,7 @@ def delete_experience(request, id):
     experience = get_object_or_404(Experience, pk=id)
     if request.method == "POST":
         experience.delete()
-        messages.success(request, "Pengalaman berhasil dihapus!")
+        messages.success(request, "Deleted experience!")
     return redirect("main:show_experience")
 
 def is_editor(user):
