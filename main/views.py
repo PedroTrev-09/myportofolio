@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 from main.models import Experience, Project
 from main.forms import ProjectForm, ExperienceForm
 
+
 def show_main(request):
     last_login = request.COOKIES.get('last_login', 'No login session yet') 
     
@@ -70,9 +71,9 @@ def logout_user(request):
 
 @login_required(login_url="/login/")
 def create_project(request):
-    if not request.user.is_superuser: 
-        raise PermissionDenied 
-    
+    if not (request.user.is_superuser or is_editor(request.user)):
+        raise PermissionDenied
+
     form = ProjectForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -80,11 +81,11 @@ def create_project(request):
     context = {"name": "Haikal Rafka A Rahman", "form": form}
     return render(request, "project_form.html", context)
 
-@login_required(login_url="/login/") 
+@login_required(login_url="/login/")
 def delete_project(request, id):
-    if not request.user.is_superuser: 
-        raise PermissionDenied 
-        
+    if not (request.user.is_superuser or is_editor(request.user)):
+        raise PermissionDenied
+
     project = get_object_or_404(Project, pk=id)
     if request.method == "POST":
         project.delete()
@@ -103,21 +104,27 @@ def toggle_star(request, project_id):
 
 @login_required(login_url="/login/")
 def create_experience(request):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
+
     form = ExperienceForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
         return redirect("main:show_experience")
+
     context = {"name": "Haikal Rafka A Rahman", "form": form}
     return render(request, "experience_form.html", context)
 
 @login_required(login_url="/login/")
 def delete_experience(request, id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
+
     experience = get_object_or_404(Experience, pk=id)
     if request.method == "POST":
         experience.delete()
         messages.success(request, "Pengalaman berhasil dihapus!")
     return redirect("main:show_experience")
+
+def is_editor(user):
+    return user.groups.filter(name='Editor').exists()
