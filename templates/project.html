@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block meta %}
 <title>Projects - {{ name }}</title>
@@ -8,166 +9,426 @@
 <main id="main-content">
     <section class="projects" id="projects">
         <div class="container">
-            <h2>Selected projects</h2>
-
-            {% if user.is_superuser %}
-                <a
-                    href="{% url 'main:create_project' %}"
-                    class="contact-link primary"
-                    style="display: inline-block; margin-bottom: 1.5rem;"
-                >
-                    + Add Project
-                </a>
-            {% endif %}
-
-            <p class="section-sub">
-                A few things I've built. Filter by category, or leave it on "All".
-            </p>
-
-            <div class="projects-panel">
-                <fieldset
-                    class="filter-tabs"
-                    style="position: relative; z-index: 10;"
-                >
-                    <legend class="visually-hidden">
-                        Filter projects by category
-                    </legend>
-
-                    <input
-                        type="radio"
-                        name="project-filter"
-                        id="tab-all"
-                        class="visually-hidden"
-                        checked
-                    >
-                    <label for="tab-all">All</label>
-
-                    <input
-                        type="radio"
-                        name="project-filter"
-                        id="tab-event"
-                        class="visually-hidden"
-                    >
-                    <label for="tab-event">Events</label>
-
-                    <input
-                        type="radio"
-                        name="project-filter"
-                        id="tab-fashion"
-                        class="visually-hidden"
-                    >
-                    <label for="tab-fashion">Fashion Article</label>
-
-                    <input
-                        type="radio"
-                        name="project-filter"
-                        id="tab-design"
-                        class="visually-hidden"
-                    >
-                    <label for="tab-design">Design</label>
-                </fieldset>
-
-                <div class="projects-grid">
-                    {% for project in project_list %}
-                        <article
-                            class="project-card cat-{{ project.category }}"
-                            style="position: relative;"
-                        >
-                            <img
-                                src="{{ project.image_url }}"
-                                alt="{{ project.title }}"
-                                class="project-img"
-                            >
-
-                            <div class="project-body">
-                                <h3>
-                                    <a
-                                        href="#modal-{{ project.id }}"
-                                        class="stretched-link"
-                                    >
-                                        {{ project.title }}
-                                    </a>
-                                </h3>
-
-                                <p>{{ project.short_description }}</p>
-
-                                <ul class="tag-list">
-                                    {% for tag in project.tags_list %}
-                                        <li>{{ tag }}</li>
-                                    {% endfor %}
-                                </ul>
-
-                                <div
-                                    style="
-                                        display: flex;
-                                        align-items: center;
-                                        gap: 10px;
-                                        margin-top: 1rem;
-                                        position: relative;
-                                        z-index: 5;
-                                        flex-wrap: wrap;
-                                    "
-                                >
-                                    {% include "components/project_star.html" with project=project %}
-
-                                    {% if user.is_superuser or is_editor %}
-                                        <a
-                                            href="{% url 'main:update_project' project.id %}"
-                                            class="contact-link ghost"
-                                        >
-                                            Edit
-                                        </a>
-                                    {% endif %}
-
-                                    {% if user.is_superuser %}
-                                        {% include "components/project_delete_modal.html" with project=project %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </article>
-
-                    {% empty %}
-                        <p
-                            style="
-                                color: var(--ink-soft);
-                                font-style: italic;
-                            "
-                        >
-                            There are no projects to display.
-                        </p>
-                    {% endfor %}
+            <div class="project-header">
+                <div>
+                    <h2>Selected projects</h2>
+                    <p class="section-sub">
+                        Explore the projects I have built. Search by title or filter by category.
+                    </p>
                 </div>
+
+                {% if user.is_superuser %}
+                    <button
+                        type="button"
+                        class="button project-add-button"
+                        popovertarget="add-project-modal"
+                    >
+                        <span aria-hidden="true">+</span>
+                        Tambah Proyek
+                    </button>
+                {% endif %}
             </div>
+
+            <form id="project-search-form" class="project-search">
+                <input
+                    type="search"
+                    id="search-input"
+                    name="title"
+                    value="{{ title_query }}"
+                    placeholder="Cari berdasarkan nama proyek"
+                    class="project-search__input"
+                    aria-label="Cari berdasarkan nama proyek"
+                    autocomplete="off"
+                >
+                <button type="submit" class="button">Cari</button>
+            </form>
+
+            <fieldset class="filter-tabs" style="position: relative; z-index: 10;">
+                <legend class="visually-hidden">Filter projects by category</legend>
+
+                <input
+                    type="radio"
+                    name="project-filter"
+                    id="tab-all"
+                    class="visually-hidden"
+                    value="all"
+                    checked
+                >
+                <label for="tab-all">All</label>
+
+                <input
+                    type="radio"
+                    name="project-filter"
+                    id="tab-event"
+                    class="visually-hidden"
+                    value="event"
+                >
+                <label for="tab-event">Events</label>
+
+                <input
+                    type="radio"
+                    name="project-filter"
+                    id="tab-fashion"
+                    class="visually-hidden"
+                    value="fashion"
+                >
+                <label for="tab-fashion">Fashion Article</label>
+
+                <input
+                    type="radio"
+                    name="project-filter"
+                    id="tab-design"
+                    class="visually-hidden"
+                    value="design"
+                >
+                <label for="tab-design">Design</label>
+            </fieldset>
+
+            <div id="loading" class="empty-state hide">
+                <p>Memuat projects...</p>
+            </div>
+
+            <div id="error" class="empty-state hide">
+                <p>Gagal memuat data projects. Silakan coba lagi.</p>
+            </div>
+
+            <div id="empty" class="empty-state hide">
+                <p>Belum ada proyek yang ditambahkan atau ditemukan.</p>
+            </div>
+
+            <div id="grid" class="projects-grid hide" aria-live="polite"></div>
         </div>
     </section>
 
-    {% for project in project_list %}
-        <div id="modal-{{ project.id }}" class="modal">
-            <a
-                href="#!"
-                class="modal-overlay"
-                aria-label="Tutup pop-up"
-            ></a>
+    {% if user.is_superuser %}
+        {% include "components/project_form_modal.html" %}
+    {% endif %}
+</main>
 
-            <div class="modal-content">
-                <a
-                    href="#!"
-                    class="modal-close"
-                    aria-label="Tutup pop-up"
+<script>
+const BASE_PROJECTS_ENDPOINT = "{% url 'main:get_projects_json' %}";
+const CREATE_PROJECT_ENDPOINT = "{% url 'main:create_project_ajax' %}";
+const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
+const SEARCH_DEBOUNCE_DELAY = 300;
+
+let projectsAbortController;
+let searchDebounceTimer;
+
+const loadingState = document.getElementById("loading");
+const errorState = document.getElementById("error");
+const emptyState = document.getElementById("empty");
+const gridContainer = document.getElementById("grid");
+const searchForm = document.getElementById("project-search-form");
+const searchInput = document.getElementById("search-input");
+const projectForm = document.getElementById("project-form");
+
+function displayPageSection({
+    showLoading = false,
+    showError = false,
+    showEmpty = false,
+    showGrid = false,
+}) {
+    loadingState.classList.toggle("hide", !showLoading);
+    errorState.classList.toggle("hide", !showError);
+    emptyState.classList.toggle("hide", !showEmpty);
+    gridContainer.classList.toggle("hide", !showGrid);
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+function replaceProjectId(urlTemplate, projectId) {
+    const dummyId = "00000000-0000-0000-0000-000000000000";
+    return urlTemplate.replace(dummyId, encodeURIComponent(projectId));
+}
+
+function buildProjectCardElement(item) {
+    const project = item.fields;
+    const projectId = item.pk;
+
+    const articleElement = document.createElement("article");
+    articleElement.className = "project-card";
+    articleElement.dataset.category = project.category || "";
+
+    const imageHtml = project.image_url
+        ? `<img src="${escapeHtml(project.image_url)}" alt="Gambar ${escapeHtml(project.title)}" class="project-img">`
+        : "";
+
+    const projectEditUrlTemplate = "{% url 'main:update_project' '00000000-0000-0000-0000-000000000000' %}";
+    const projectDeleteUrlTemplate = "{% url 'main:delete_project' '00000000-0000-0000-0000-000000000000' %}";
+    const projectStarUrlTemplate = "{% url 'main:toggle_star' '00000000-0000-0000-0000-000000000000' %}";
+
+    const editUrl = replaceProjectId(projectEditUrlTemplate, projectId);
+    const deleteUrl = replaceProjectId(projectDeleteUrlTemplate, projectId);
+    const starUrl = replaceProjectId(projectStarUrlTemplate, projectId);
+
+    const editHtml = (IS_SUPERUSER || IS_EDITOR)
+        ? `<a href="${escapeHtml(editUrl)}" class="contact-link ghost">Edit</a>`
+        : "";
+
+    const deleteHtml = IS_SUPERUSER
+        ? `
+            <form method="post" action="${escapeHtml(deleteUrl)}" style="display:inline;">
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    class="btn-danger-ghost"
+                    onclick="return confirm('Yakin ingin menghapus project ini?');"
                 >
-                    &times;
+                    Delete
+                </button>
+            </form>
+        `
+        : "";
+
+    const isStarredClass = project.is_starred ? " is-starred" : "";
+    const starText = project.is_starred ? "Unstar" : "Star";
+    const starTitle = project.star_count > 0
+        ? `${project.star_count} star(s) pada project ini`
+        : "Jadilah yang pertama memberi star";
+
+    const tags = String(project.tags ?? "")
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(Boolean)
+        .map(tag => `<li>${escapeHtml(tag)}</li>`)
+        .join("");
+
+    const modalId = `project-modal-${projectId}`;
+
+    const completeCardHtml = `
+        ${imageHtml}
+        <div class="project-body">
+            <h3>
+                <a href="#${escapeHtml(modalId)}" class="stretched-link">
+                    ${escapeHtml(project.title)}
                 </a>
+            </h3>
 
-                <img
-                    src="{{ project.image_url }}"
-                    alt="{{ project.title }}"
-                >
+            <p>${escapeHtml(project.short_description)}</p>
 
-                <h3>{{ project.title }}</h3>
+            <ul class="tag-list">${tags}</ul>
 
-                <p>{{ project.full_description|safe }}</p>
+            <div class="project-card-actions">
+                <div class="project-actions">
+                    <form method="post" action="${escapeHtml(starUrl)}" class="star-form">
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="button-star${isStarredClass}"
+                            title="${escapeHtml(starTitle)}"
+                        >
+                            <span aria-hidden="true">★</span>
+                            ${escapeHtml(starText)}
+                            <span class="star-count">${escapeHtml(project.star_count)}</span>
+                        </button>
+                    </form>
+
+                    ${editHtml}
+                    ${deleteHtml}
+                </div>
             </div>
         </div>
-    {% endfor %}
-</main>
+
+        <div id="${escapeHtml(modalId)}" class="modal">
+            <a href="#" class="modal-overlay" aria-label="Tutup pop-up"></a>
+            <div class="modal-content">
+                <a href="#" class="modal-close" aria-label="Tutup pop-up">&times;</a>
+                ${imageHtml}
+                <h3>${escapeHtml(project.title)}</h3>
+                <p>${escapeHtml(project.full_description)}</p>
+            </div>
+        </div>
+    `;
+
+    articleElement.innerHTML = completeCardHtml;
+    return articleElement;
+}
+
+function applyCategoryFilter() {
+    const checkedFilter = document.querySelector("input[name='project-filter']:checked");
+    if (!checkedFilter) return;
+
+    const category = checkedFilter.value;
+
+    document.querySelectorAll("#grid .project-card").forEach(card => {
+        const visible = category === "all" || card.dataset.category === category;
+        card.classList.toggle("is-filtered-out", !visible);
+    });
+
+    const visibleCards = document.querySelectorAll("#grid .project-card:not(.is-filtered-out)");
+    const hasAnyProject = document.querySelectorAll("#grid .project-card").length > 0;
+
+    if (hasAnyProject && visibleCards.length === 0) {
+        displayPageSection({ showGrid: true });
+        gridContainer.dataset.filterEmpty = "true";
+    } else {
+        gridContainer.dataset.filterEmpty = "false";
+    }
+}
+
+async function fetchProjects(searchQuery = "") {
+    if (projectsAbortController) {
+        projectsAbortController.abort();
+    }
+
+    projectsAbortController = new AbortController();
+
+    try {
+        displayPageSection({ showLoading: true });
+        gridContainer.dataset.filterEmpty = "false";
+
+        const url = searchQuery
+            ? `${BASE_PROJECTS_ENDPOINT}?title=${encodeURIComponent(searchQuery)}`
+            : BASE_PROJECTS_ENDPOINT;
+
+        const response = await fetch(url, {
+            headers: { Accept: "application/json" },
+            signal: projectsAbortController.signal,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data (${response.status})`);
+        }
+
+        const projectData = await response.json();
+
+        if (projectData.length === 0) {
+            displayPageSection({ showEmpty: true });
+            return;
+        }
+
+        gridContainer.innerHTML = "";
+        projectData.forEach(item => {
+            gridContainer.appendChild(buildProjectCardElement(item));
+        });
+
+        displayPageSection({ showGrid: true });
+        applyCategoryFilter();
+    } catch (error) {
+        if (error.name === "AbortError") {
+            return;
+        }
+
+        console.error("Error loading projects:", error);
+        displayPageSection({ showError: true });
+    }
+}
+
+function searchProjects() {
+    fetchProjects(searchInput.value.trim());
+}
+
+function closeProjectModal() {
+    const modal = document.getElementById("add-project-modal");
+    if (modal && modal.matches(":popover-open")) {
+        modal.hidePopover();
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+
+            if (cookie.substring(0, name.length + 1) === `${name}=`) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+async function addProject(event) {
+    event.preventDefault();
+
+    if (!projectForm) return;
+
+    const submitButton = projectForm.querySelector("button[type='submit']");
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+
+    try {
+        const response = await fetch(CREATE_PROJECT_ENDPOINT, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                Accept: "application/json",
+            },
+            body: new FormData(projectForm),
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+            projectForm.reset();
+            closeProjectModal();
+            showToast("Berhasil", "Proyek baru berhasil ditambahkan!", "success");
+            fetchProjects(searchInput.value.trim());
+            return;
+        }
+
+        const errorMessages = result.errors
+            ? Object.values(result.errors)
+                .flat()
+                .map(error => error.message)
+            : [result.message || `Terjadi kesalahan (status ${response.status}).`];
+
+        showToast(
+            "Gagal menambahkan proyek",
+            errorMessages.join(" "),
+            "error"
+        );
+    } catch (error) {
+        console.error("Error adding project:", error);
+        showToast(
+            "Gagal menambahkan proyek",
+            "Tidak dapat terhubung ke server. Silakan coba lagi.",
+            "error"
+        );
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
+    }
+}
+
+searchInput.addEventListener("input", function () {
+    clearTimeout(searchDebounceTimer);
+
+    searchDebounceTimer = setTimeout(function () {
+        searchProjects();
+    }, SEARCH_DEBOUNCE_DELAY);
+});
+
+searchForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    clearTimeout(searchDebounceTimer);
+    searchProjects();
+});
+
+document.querySelectorAll("input[name='project-filter']").forEach(filterInput => {
+    filterInput.addEventListener("change", applyCategoryFilter);
+});
+
+if (projectForm) {
+    projectForm.addEventListener("submit", addProject);
+}
+
+fetchProjects(searchInput.value.trim());
+</script>
 {% endblock content %}

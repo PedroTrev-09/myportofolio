@@ -53,41 +53,48 @@ def show_experience(request):
 
 
 def get_projects_json(request):
-    projects = Project.objects.all().order_by("-created_at")
+    """Return public project data for the AJAX project list."""
+    title_query = request.GET.get("title", "").strip()
 
-    projects_json = [
-        {
-            "model": "main.project",
-            "pk": str(project.pk),
-            "fields": {
-                "title": project.title,
-                "short_description": project.short_description,
-                "full_description": project.full_description,
-                "image_url": project.image_url,
-                "category": project.category,
-                "tags": project.tags,
-                "created_at": project.created_at.isoformat(),
-                "star_count": project.starred_by.count(),
-            },
-        }
-        for project in projects
-    ]
+    projects = Project.objects.prefetch_related("starred_by").all().order_by("-created_at")
+    if title_query:
+        projects = projects.filter(title__icontains=title_query)
 
-    return JsonResponse(projects_json, safe=False)
+    data = []
+    for project in projects:
+        starred_users = list(project.starred_by.all())
+        is_starred = request.user.is_authenticated and request.user in starred_users
+
+        data.append(
+            {
+                "model": "main.project",
+                "pk": str(project.id),
+                "fields": {
+                    "title": project.title,
+                    "category": project.category,
+                    "image_url": project.image_url,
+                    "short_description": project.short_description,
+                    "full_description": project.full_description,
+                    "tags": project.tags,
+                    "created_at": project.created_at.isoformat(),
+                    "star_count": len(starred_users),
+                    "is_starred": is_starred,
+                },
+            }
+        )
+
+    return JsonResponse(data, safe=False)
 
 
 def show_project(request):
-    projects = (
-        Project.objects
-        .prefetch_related("starred_by")
-        .all()
-        .order_by("-created_at")
-    )
+    """Render only the project page shell; project data is loaded through AJAX."""
+    title_query = request.GET.get("title", "").strip()
 
     context = {
         "headerName": "Haikal Rafka",
         "name": "Haikal Rafka A Rahman",
-        "project_list": projects,
+        "title_query": title_query,
+        "form": ProjectForm(),
         "is_editor": is_editor(request.user),
     }
     return render(request, "project.html", context)
@@ -103,7 +110,8 @@ def register(request):
 
     context = {
         "name": "Haikal Rafka A Rahman",
-        "form": form
+        "headerName": "Haikal Rafka",
+        "form": form,
     }
     return render(request, "register.html", context)
 
@@ -119,14 +127,15 @@ def login_user(request):
 
         response.set_cookie(
             "last_login",
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
 
         return response
 
     context = {
         "name": "Haikal Rafka A Rahman",
-        "form": form
+        "headerName": "Haikal Rafka",
+        "form": form,
     }
     return render(request, "login.html", context)
 
@@ -154,6 +163,7 @@ def create_project(request):
 
     context = {
         "name": "Haikal Rafka A Rahman",
+        "headerName": "Haikal Rafka",
         "form": form,
         "is_edit": False,
     }
@@ -168,10 +178,7 @@ def update_project(request, id):
 
     project = get_object_or_404(Project, pk=id)
 
-    form = ProjectForm(
-        request.POST or None,
-        instance=project
-    )
+    form = ProjectForm(request.POST or None, instance=project)
 
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -180,6 +187,7 @@ def update_project(request, id):
 
     context = {
         "name": "Haikal Rafka A Rahman",
+        "headerName": "Haikal Rafka",
         "form": form,
         "project": project,
         "is_edit": True,
@@ -231,6 +239,7 @@ def create_experience(request):
 
     context = {
         "name": "Haikal Rafka A Rahman",
+        "headerName": "Haikal Rafka",
         "form": form,
         "is_edit": False,
     }
@@ -245,10 +254,7 @@ def update_experience(request, id):
 
     experience = get_object_or_404(Experience, pk=id)
 
-    form = ExperienceForm(
-        request.POST or None,
-        instance=experience
-    )
+    form = ExperienceForm(request.POST or None, instance=experience)
 
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -257,6 +263,7 @@ def update_experience(request, id):
 
     context = {
         "name": "Haikal Rafka A Rahman",
+        "headerName": "Haikal Rafka",
         "form": form,
         "experience": experience,
         "is_edit": True,
@@ -277,3 +284,24 @@ def delete_experience(request, id):
         messages.success(request, "Deleted experience!")
 
     return redirect("main:show_experience")
+
+
+@require_POST
+def create_project_ajax(request):
+    """Create a project through AJAX; only the portfolio owner may do this."""
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            status=403,
+        )
+
+    form = ProjectForm(request.POST)
+
+    if form.is_valid():
+        project = form.save()
+        return JsonResponse(
+            {"message": "Proyek berhasil ditambahkan.", "pk": str(project.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
