@@ -12,42 +12,110 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body id="top">
-    <a href="#main-content" class="visually-hidden skip-link">Skip to content</a>
 
-    <input type="checkbox" id="theme-toggle" class="visually-hidden">
-    <input type="checkbox" id="nav-toggle" class="visually-hidden">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+</head>
+
+<body id="top">
+
+    <a
+        href="#main-content"
+        class="visually-hidden skip-link"
+    >
+        Skip to content
+    </a>
+
+    <input
+        type="checkbox"
+        id="theme-toggle"
+        class="visually-hidden"
+    >
+
+    <input
+        type="checkbox"
+        id="nav-toggle"
+        class="visually-hidden"
+    >
 
     <header class="site-header">
         <div class="container header-inner">
-            <a href="{% url 'main:show_main' %}#top" class="brand">
+
+            <a
+                href="{% url 'main:show_main' %}#top"
+                class="brand"
+            >
                 {{ headerName|default:name }}
             </a>
 
-            <nav class="site-nav" aria-label="Primary">
-                <a href="{% url 'main:show_main' %}#about">About</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_project' %}">Projects</a>
+            <nav
+                class="site-nav"
+                aria-label="Primary"
+            >
+                <a href="{% url 'main:show_main' %}#about">
+                    About
+                </a>
+
+                <a href="{% url 'main:show_experience' %}">
+                    Experience
+                </a>
+
+                <a href="{% url 'main:show_project' %}">
+                    Projects
+                </a>
 
                 {% if user.is_authenticated %}
-                    <span class="nav-user">{{ user.username }}</span>
-                    <a href="{% url 'main:logout' %}">Logout</a>
+
+                    <span class="nav-user">
+                        {{ user.username }}
+                    </span>
+
+                    <a href="{% url 'main:logout' %}">
+                        Logout
+                    </a>
+
                 {% else %}
-                    <a href="{% url 'main:login' %}">Login</a>
-                    <a href="{% url 'main:register' %}">Register</a>
+
+                    <a href="{% url 'main:login' %}">
+                        Login
+                    </a>
+
+                    <a href="{% url 'main:register' %}">
+                        Register
+                    </a>
+
                 {% endif %}
             </nav>
 
             <div class="header-actions">
-                <label for="theme-toggle" class="theme-switch" aria-label="Switch between day and night theme">
-                    <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
+
+                <label
+                    for="theme-toggle"
+                    class="theme-switch"
+                    aria-label="Switch between day and night theme"
+                >
+                    <span class="theme-switch-track">
+                        <span class="theme-switch-thumb"></span>
+                    </span>
                 </label>
-                <label for="nav-toggle" class="hamburger" aria-label="Open menu">
-                    <span></span><span></span><span></span>
+
+                <label
+                    for="nav-toggle"
+                    class="hamburger"
+                    aria-label="Open menu"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </label>
+
             </div>
         </div>
     </header>
@@ -57,8 +125,20 @@
 
     <footer class="site-footer">
         <div class="container footer-inner">
-            <p>&copy; 2026 {{ name|default:'Haikal Rafka A Rahman' }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-            <a href="#top" class="back-to-top">Back to top</a>
+
+            <p>
+                &copy; 2026
+                {{ name|default:'Haikal Rafka A Rahman' }}.
+                Fakultas Ilmu Komputer, Universitas Indonesia.
+            </p>
+
+            <a
+                href="#top"
+                class="back-to-top"
+            >
+                Back to top
+            </a>
+
         </div>
     </footer>
 
@@ -66,16 +146,24 @@
 
     {% if messages %}
         <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                {% for message in messages %}
-                    showToast(
-                        "Notifikasi",
-                        "{{ message|escapejs }}",
-                        "{{ message.tags|default:'normal'|escapejs }}"
-                    );
-                {% endfor %}
-            });
+            document.addEventListener(
+                "DOMContentLoaded",
+                function () {
+
+                    {% for message in messages %}
+
+                        showToast(
+                            "Notifikasi",
+                            "{{ message|escapejs }}",
+                            "{{ message.tags|default:'normal'|escapejs }}"
+                        );
+
+                    {% endfor %}
+
+                }
+            );
         </script>
     {% endif %}
+
 </body>
 </html>

@@ -201,13 +201,14 @@ function buildProjectCardElement(item) {
         .map(tag => `<li>${escapeHtml(tag)}</li>`)
         .join("");
 
-    const modalId = `project-modal-${projectId}`;
-
     const completeCardHtml = `
         ${imageHtml}
         <div class="project-body">
             <h3>
-                <a href="#${escapeHtml(modalId)}" class="stretched-link">
+                <a
+                    href="#project-modal-${escapeHtml(projectId)}"
+                    class="stretched-link"
+                >
                     ${escapeHtml(project.title)}
                 </a>
             </h3>
@@ -218,7 +219,11 @@ function buildProjectCardElement(item) {
 
             <div class="project-card-actions">
                 <div class="project-actions">
-                    <form method="post" action="${escapeHtml(starUrl)}" class="star-form">
+                    <form
+                        method="post"
+                        action="${escapeHtml(starUrl)}"
+                        class="star-form"
+                    >
                         {% csrf_token %}
                         <button
                             type="submit"
@@ -227,7 +232,9 @@ function buildProjectCardElement(item) {
                         >
                             <span aria-hidden="true">★</span>
                             ${escapeHtml(starText)}
-                            <span class="star-count">${escapeHtml(project.star_count)}</span>
+                            <span class="star-count">
+                                ${escapeHtml(project.star_count)}
+                            </span>
                         </button>
                     </form>
 
@@ -236,20 +243,47 @@ function buildProjectCardElement(item) {
                 </div>
             </div>
         </div>
-
-        <div id="${escapeHtml(modalId)}" class="modal">
-            <a href="#" class="modal-overlay" aria-label="Tutup pop-up"></a>
-            <div class="modal-content">
-                <a href="#" class="modal-close" aria-label="Tutup pop-up">&times;</a>
-                ${imageHtml}
-                <h3>${escapeHtml(project.title)}</h3>
-                <p>${escapeHtml(project.full_description)}</p>
-            </div>
-        </div>
     `;
 
     articleElement.innerHTML = completeCardHtml;
     return articleElement;
+}
+
+function buildProjectModalElement(item) {
+    const project = item.fields;
+    const projectId = item.pk;
+    const modalElement = document.createElement("div");
+
+    modalElement.id = `project-modal-${projectId}`;
+    modalElement.className = "modal dynamic-project-modal";
+
+    const imageHtml = project.image_url
+        ? `<img src="${escapeHtml(project.image_url)}" alt="Gambar ${escapeHtml(project.title)}" class="project-img">`
+        : "";
+
+    modalElement.innerHTML = `
+        <a
+            href="#"
+            class="modal-overlay"
+            aria-label="Tutup pop-up"
+        ></a>
+
+        <div class="modal-content">
+            <a
+                href="#"
+                class="modal-close"
+                aria-label="Tutup pop-up"
+            >
+                &times;
+            </a>
+
+            ${imageHtml}
+            <h3>${escapeHtml(project.title)}</h3>
+            <p>${escapeHtml(project.full_description)}</p>
+        </div>
+    `;
+
+    return modalElement;
 }
 
 function applyCategoryFilter() {
@@ -300,7 +334,12 @@ async function fetchProjects(searchQuery = "") {
 
         const projectData = await response.json();
 
+        document.querySelectorAll(".dynamic-project-modal").forEach(modal => {
+            modal.remove();
+        });
+
         if (projectData.length === 0) {
+            gridContainer.innerHTML = "";
             displayPageSection({ showEmpty: true });
             return;
         }
@@ -308,6 +347,7 @@ async function fetchProjects(searchQuery = "") {
         gridContainer.innerHTML = "";
         projectData.forEach(item => {
             gridContainer.appendChild(buildProjectCardElement(item));
+            document.body.appendChild(buildProjectModalElement(item));
         });
 
         displayPageSection({ showGrid: true });

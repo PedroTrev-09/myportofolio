@@ -264,8 +264,9 @@ class ProjectTest(TestCase):
         response = self.client.get(reverse("main:show_project"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "IS_EDITOR")
-        self.assertContains(response, "update_project")
+        self.assertContains(response, 'const IS_EDITOR = "true" === "true";')
+        self.assertContains(response, "IS_SUPERUSER || IS_EDITOR")
+        self.assertContains(response, "projectEditUrlTemplate")
         self.assertNotContains(response, "project-add-button")
 
     def test_superuser_gets_project_modal_controls(self):
@@ -274,5 +275,8 @@ class ProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "project-add-button")
-        self.assertContains(response, "project-form")
-        self.assertContains(response, "create_project_ajax")
+        self.assertContains(response, 'id="project-form"')
+        self.assertContains(
+            response,
+            f'action="{reverse("main:create_project_ajax")}"',
+        )
