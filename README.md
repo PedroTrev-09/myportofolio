@@ -48,11 +48,10 @@ Website portofolio pribadi untuk mata kuliah Pemrograman Berbasis Platform (PBP)
 Prasyarat: Python 3.x dan Git.
 
 ```bash
-git clone <URL_REPOSITORY>
+git clone <https://github.com/PedroTrev-09/myportofolio.git>
 cd myportofolio
 python -m venv env
 source env/bin/activate
-# Windows PowerShell: .\env\Scripts\Activate.ps1
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser
