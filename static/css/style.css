@@ -1069,3 +1069,55 @@ body:has(#theme-toggle:checked) .btn-danger-fill {
         text-align: center;
     }
 }
+
+/* Individual Assignment 05 - Experience AJAX */
+.experience-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.experience-add-button {
+    flex-shrink: 0;
+}
+
+.experience-count {
+    min-height: 1.25rem;
+    margin: -0.5rem 0 1rem;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+}
+
+.experience-category {
+    display: inline-flex;
+    width: fit-content;
+    margin-bottom: 0.75rem !important;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-alt);
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.experience-actions .btn-danger-ghost {
+    margin-top: 0;
+}
+
+.timeline-description {
+    white-space: pre-line;
+}
+
+@media (max-width: 700px) {
+    .experience-header {
+        flex-direction: column;
+    }
+
+    .experience-add-button {
+        width: 100%;
+    }
+}
