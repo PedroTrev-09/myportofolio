@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -6,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
+from django.utils.html import strip_tags
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -40,16 +42,65 @@ def can_manage_data(user):
     return user.is_superuser
 
 
+def clean_experience_description(value):
+    """Convert legacy list markup to readable plain text before JSON serialization."""
+    value = value.replace("\r\n", "\n").replace("\r", "\n")
+    value = re.sub(r"<\s*/\s*li\s*>", "\n", value, flags=re.IGNORECASE)
+    value = re.sub(r"<\s*li\b[^>]*>", "- ", value, flags=re.IGNORECASE)
+    return strip_tags(value).strip()
+
+
 def show_experience(request):
-    experiences = Experience.objects.all().order_by("-started_at")
+    """Render only the Experience page shell; data is loaded through AJAX."""
+    title_query = request.GET.get("title", "").strip()
+    category_query = request.GET.get("category", "all").strip().lower() or "all"
 
     context = {
         "headerName": "Haikal Rafka",
         "name": "Haikal Rafka A Rahman",
-        "experience_list": experiences,
+        "title_query": title_query,
+        "category_query": category_query,
+        "form": ExperienceForm(),
         "is_editor": is_editor(request.user),
     }
     return render(request, "experience.html", context)
+
+
+def get_experiences_json(request):
+    """Return public experience data for the AJAX Experience list."""
+    title_query = request.GET.get("title", "").strip()
+    category_query = request.GET.get("category", "all").strip().lower()
+
+    experiences = Experience.objects.all().order_by("-started_at")
+
+    if title_query:
+        experiences = experiences.filter(title__icontains=title_query)
+
+    if category_query and category_query != "all":
+        experiences = experiences.filter(category=category_query)
+
+    data = []
+    for experience in experiences:
+        description = clean_experience_description(experience.description)
+
+        data.append(
+            {
+                "model": "main.experience",
+                "pk": str(experience.id),
+                "fields": {
+                    "title": strip_tags(experience.title).strip(),
+                    "location": strip_tags(experience.location).strip(),
+                    "description": description.strip(),
+                    "category": experience.category,
+                    "category_display": experience.get_category_display(),
+                    "started_at": experience.started_at.isoformat(),
+                    "ended_at": experience.ended_at.isoformat() if experience.ended_at else None,
+                    "is_ongoing": experience.is_ongoing,
+                },
+            }
+        )
+
+    return JsonResponse(data, safe=False)
 
 
 def get_projects_json(request):
@@ -284,6 +335,30 @@ def delete_experience(request, id):
         messages.success(request, "Deleted experience!")
 
     return redirect("main:show_experience")
+
+
+@require_POST
+def create_experience_ajax(request):
+    """Create an Experience through AJAX; only the portfolio owner may do this."""
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan pengalaman."},
+            status=403,
+        )
+
+    form = ExperienceForm(request.POST)
+
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse(
+            {
+                "message": "Pengalaman berhasil ditambahkan.",
+                "pk": str(experience.id),
+            },
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
 
 @require_POST
