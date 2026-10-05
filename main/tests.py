@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.contrib.auth.models import Group, User
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from main.models import Experience, Project
@@ -280,3 +280,280 @@ class ProjectTest(TestCase):
             response,
             f'action="{reverse("main:create_project_ajax")}"',
         )
+
+
+class ExperienceAjaxTest(TestCase):
+    def setUp(self):
+        self.experience = Experience.objects.create(
+            title="Graphic Designer & Photographer",
+            location="Lombok, NTB",
+            description="Mengelola visual branding secara konsisten.",
+            category="part-time",
+            started_at=date(2025, 1, 1),
+        )
+
+        self.normal_user = User.objects.create_user(
+            username="normal-experience-user",
+            password="StrongPassword123!",
+        )
+        self.editor_user = User.objects.create_user(
+            username="editor-experience-user",
+            password="StrongPassword123!",
+        )
+        self.superuser = User.objects.create_superuser(
+            username="experience-owner",
+            password="StrongPassword123!",
+            email="experience-owner@example.com",
+        )
+
+        editor_group, _ = Group.objects.get_or_create(name="Editor")
+        self.editor_user.groups.add(editor_group)
+
+    def test_experience_page_uses_ajax_shell(self):
+        response = self.client.get(reverse("main:show_experience"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "experience.html")
+        self.assertContains(response, "experience-search-form")
+        self.assertContains(response, "experience-loading")
+        self.assertContains(response, "experience-error")
+        self.assertContains(response, "experience-empty")
+        self.assertContains(response, "fetchExperiences")
+        self.assertNotContains(response, self.experience.title)
+
+    def test_experiences_json_returns_public_data(self):
+        response = self.client.get(reverse("main:get_experiences_json"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["model"], "main.experience")
+        self.assertEqual(data[0]["pk"], str(self.experience.id))
+        self.assertEqual(data[0]["fields"]["title"], self.experience.title)
+        self.assertEqual(data[0]["fields"]["category_display"], "Part-Time")
+        self.assertTrue(data[0]["fields"]["is_ongoing"])
+
+    def test_experiences_json_strips_html_from_existing_text(self):
+        self.experience.description = "<ul><li>First item</li><li>Second item</li></ul>"
+        self.experience.save(update_fields=["description"])
+
+        response = self.client.get(reverse("main:get_experiences_json"))
+        description = response.json()[0]["fields"]["description"]
+
+        self.assertNotIn("<", description)
+        self.assertNotIn(">", description)
+        self.assertEqual(description, "- First item\n- Second item")
+
+    def test_experiences_json_supports_title_and_category_search(self):
+        Experience.objects.create(
+            title="UI Research Assistant",
+            location="Depok",
+            description="Menganalisis kebutuhan pengguna.",
+            category="research",
+            started_at=date(2026, 2, 1),
+        )
+
+        response = self.client.get(
+            reverse("main:get_experiences_json"),
+            {"title": "Graphic"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 1)
+
+        response = self.client.get(
+            reverse("main:get_experiences_json"),
+            {"category": "research"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]["fields"]["category"], "research")
+
+        response = self.client.get(
+            reverse("main:get_experiences_json"),
+            {"title": "Does Not Exist"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [])
+
+    def test_experience_page_is_readable_by_all_roles(self):
+        for username in [None, self.normal_user.username, self.editor_user.username, self.superuser.username]:
+            self.client.logout()
+            if username:
+                password = "StrongPassword123!"
+                self.client.login(username=username, password=password)
+
+            response = self.client.get(reverse("main:show_experience"))
+            self.assertEqual(response.status_code, 200)
+
+        self.client.logout()
+        self.client.login(username=self.superuser.username, password="StrongPassword123!")
+        response = self.client.get(reverse("main:show_experience"))
+        self.assertContains(response, "add-experience-modal")
+
+    def test_create_experience_ajax_requires_superuser(self):
+        payload = {
+            "title": "Campus Event Manager",
+            "location": "Depok",
+            "started_at": "2026-09-01",
+            "category": "part-time",
+            "description": "Mengelola kegiatan kampus.",
+        }
+
+        response = self.client.post(reverse("main:create_experience_ajax"), payload)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Experience.objects.count(), 1)
+        self.assertEqual(response.json()["message"], "Hanya pemilik portofolio yang dapat menambahkan pengalaman.")
+
+        self.client.login(username=self.normal_user.username, password="StrongPassword123!")
+        response = self.client.post(reverse("main:create_experience_ajax"), payload)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Experience.objects.count(), 1)
+
+        self.client.login(username=self.editor_user.username, password="StrongPassword123!")
+        response = self.client.post(reverse("main:create_experience_ajax"), payload)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Experience.objects.count(), 1)
+
+        self.client.login(username=self.superuser.username, password="StrongPassword123!")
+        response = self.client.post(reverse("main:create_experience_ajax"), payload)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Experience.objects.count(), 2)
+        self.assertEqual(response.json()["message"], "Pengalaman berhasil ditambahkan.")
+
+    def test_create_experience_ajax_returns_validation_errors(self):
+        self.client.login(username=self.superuser.username, password="StrongPassword123!")
+
+        response = self.client.post(
+            reverse("main:create_experience_ajax"),
+            {
+                "title": "<img src=x onerror=alert(1)>",
+                "location": "Depok",
+                "started_at": "2026-09-01",
+                "category": "part-time",
+                "description": "Description",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("title", response.json()["errors"])
+        self.assertEqual(Experience.objects.count(), 1)
+
+    def test_create_experience_ajax_rejects_html_only_required_fields(self):
+        self.client.login(username=self.superuser.username, password="StrongPassword123!")
+
+        response = self.client.post(
+            reverse("main:create_experience_ajax"),
+            {
+                "title": "Valid Title",
+                "location": "<b></b>",
+                "started_at": "2026-09-01",
+                "category": "part-time",
+                "description": "<img src=x onerror=alert(1)>",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("location", response.json()["errors"])
+        self.assertIn("description", response.json()["errors"])
+        self.assertEqual(Experience.objects.count(), 1)
+
+    def test_create_experience_ajax_strips_html_from_text_fields(self):
+        self.client.login(username=self.superuser.username, password="StrongPassword123!")
+
+        response = self.client.post(
+            reverse("main:create_experience_ajax"),
+            {
+                "title": "Safe <b>Experience</b>",
+                "location": "Depok <i>Campus</i>",
+                "started_at": "2026-09-01",
+                "category": "part-time",
+                "description": "Managed <b>event</b> operations.",
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        experience = Experience.objects.get(pk=response.json()["pk"])
+        self.assertEqual(experience.title, "Safe Experience")
+        self.assertEqual(experience.location, "Depok Campus")
+        self.assertEqual(experience.description, "Managed event operations.")
+
+    def test_create_experience_ajax_allows_only_post(self):
+        self.client.login(username=self.superuser.username, password="StrongPassword123!")
+        response = self.client.get(reverse("main:create_experience_ajax"))
+        self.assertEqual(response.status_code, 405)
+
+    def test_editor_can_update_but_cannot_create_or_delete_experience(self):
+        self.client.login(username=self.editor_user.username, password="StrongPassword123!")
+
+        response = self.client.post(
+            reverse("main:create_experience_ajax"),
+            {
+                "title": "Blocked Create",
+                "location": "Depok",
+                "started_at": "2026-09-01",
+                "category": "part-time",
+                "description": "Should not be created.",
+            },
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Experience.objects.filter(pk=self.experience.id).exists())
+
+        response = self.client.post(
+            reverse("main:update_experience", args=[self.experience.id]),
+            {
+                "title": "Edited By Editor",
+                "location": "Jakarta",
+                "started_at": "2025-01-01",
+                "category": "part-time",
+                "description": "Updated experience.",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.experience.refresh_from_db()
+        self.assertEqual(self.experience.title, "Edited By Editor")
+
+        response = self.client.post(
+            reverse("main:delete_experience", args=[self.experience.id]),
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Experience.objects.filter(pk=self.experience.id).exists())
+
+    def test_superuser_can_delete_experience(self):
+        self.client.login(username=self.superuser.username, password="StrongPassword123!")
+
+        response = self.client.post(
+            reverse("main:delete_experience", args=[self.experience.id]),
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Experience.objects.filter(pk=self.experience.id).exists())
+
+    def test_create_experience_ajax_enforces_csrf(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.login(username=self.superuser.username, password="StrongPassword123!")
+
+        page = csrf_client.get(reverse("main:show_experience"))
+        self.assertIn("csrftoken", page.cookies)
+        csrf_token = page.cookies["csrftoken"].value
+
+        payload = {
+            "title": "CSRF Protected Experience",
+            "location": "Depok",
+            "started_at": "2026-09-01",
+            "category": "part-time",
+            "description": "Protected by CSRF token.",
+        }
+
+        response = csrf_client.post(reverse("main:create_experience_ajax"), payload)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Experience.objects.count(), 1)
+
+        response = csrf_client.post(
+            reverse("main:create_experience_ajax"),
+            payload,
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Experience.objects.count(), 2)
