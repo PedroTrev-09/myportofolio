@@ -440,6 +440,8 @@ body:has(#theme-toggle:checked) .theme-switch-thumb { transform: translateX(22px
 
 .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
 .project-card {
+   position: relative;
+   isolation: isolate;
    background: var(--card);
    border: 1px solid var(--line);
    border-radius: var(--radius-md);
@@ -618,7 +620,7 @@ body:has(#theme-toggle:checked) .theme-switch-thumb { transform: translateX(22px
     justify-content: center;
 }
 
-.project-delete-modal:popover-open {
+.project-delete-modal[open] {
     display: flex;
 }
 
@@ -979,7 +981,7 @@ body:has(#theme-toggle:checked) .btn-danger-fill {
     justify-content: center;
 }
 
-.project-form-modal:popover-open {
+.project-form-modal[open] {
     display: flex;
 }
 
@@ -1121,3 +1123,25 @@ body:has(#theme-toggle:checked) .btn-danger-fill {
         width: 100%;
     }
 }
+
+/* Popup and interaction fixes; keep the existing sunrise palette. */
+body:has(dialog[open]) { overflow: hidden; }
+dialog { color: var(--ink); }
+dialog::backdrop { background: rgba(28, 25, 23, .58); }
+.project-form-modal__backdrop, .project-delete-modal_backdrop { background: transparent; }
+.project-delete-modal_content { background: var(--bg); max-height: calc(100dvh - 2rem); overflow-y: auto; }
+.project-delete-modal_content h2 { padding-right: 2rem; }
+.project-form-modal__content { max-height: calc(100dvh - 2rem); }
+.project-form-modal__content img { margin-bottom: 1rem; border-radius: var(--radius-md); }
+.project-form-modal__content p { white-space: pre-line; overflow-wrap: anywhere; }
+.project-title-button { border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.project-title-button:hover { color: var(--heading); }
+.project-card-actions .btn-danger-ghost { margin-top: 0; }
+.project-actions > *, .experience-actions > * { font: inherit; font-size: .85rem; }
+.project-body, .timeline-body, .timeline-role { overflow-wrap: anywhere; min-width: 0; }
+.filter-tabs label:hover { border-color: var(--sunset); color: var(--ink); }
+#theme-toggle:focus-visible ~ .site-header .theme-switch-track,
+#nav-toggle:focus-visible ~ .site-header .hamburger { outline: 2px solid var(--sunset); outline-offset: 3px; }
+@media (max-width: 860px) { .about-grid, .skills-grid, .contact-inner { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .timeline-period { margin-left: 0; } .toast-component { inset: auto 1rem 1rem; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

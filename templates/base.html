@@ -142,6 +142,8 @@
         </div>
     </footer>
 
+    {% include 'components/delete_confirmation.html' %}
+    <script src="{% static 'js/dialogs.js' %}"></script>
     {% include 'components/toast.html' %}
 
     {% if messages %}

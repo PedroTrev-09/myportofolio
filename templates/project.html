@@ -21,7 +21,7 @@
                     <button
                         type="button"
                         class="button project-add-button"
-                        popovertarget="add-project-modal"
+                        data-dialog-open="add-project-modal"
                     >
                         <span aria-hidden="true">+</span>
                         Tambah Proyek
@@ -43,7 +43,7 @@
                 <button type="submit" class="button">Cari</button>
             </form>
 
-            <fieldset class="filter-tabs" style="position: relative; z-index: 10;">
+            <fieldset class="filter-tabs" >
                 <legend class="visually-hidden">Filter projects by category</legend>
 
                 <input
@@ -89,7 +89,7 @@
             </div>
 
             <div id="error" class="empty-state hide">
-                <p>Gagal memuat data projects. Silakan coba lagi.</p>
+                <p>Gagal memuat data projects. Silakan coba lagi.</p><button type="button" id="project-retry" class="button">Coba lagi</button>
             </div>
 
             <div id="empty" class="empty-state hide">
@@ -174,18 +174,7 @@ function buildProjectCardElement(item) {
         : "";
 
     const deleteHtml = IS_SUPERUSER
-        ? `
-            <form method="post" action="${escapeHtml(deleteUrl)}" style="display:inline;">
-                {% csrf_token %}
-                <button
-                    type="submit"
-                    class="btn-danger-ghost"
-                    onclick="return confirm('Yakin ingin menghapus project ini?');"
-                >
-                    Delete
-                </button>
-            </form>
-        `
+        ? `<button type="button" class="btn-danger-ghost" data-delete-url="${escapeHtml(deleteUrl)}" data-delete-title="${escapeHtml(project.title)}">Delete</button>`
         : "";
 
     const isStarredClass = project.is_starred ? " is-starred" : "";
@@ -205,12 +194,9 @@ function buildProjectCardElement(item) {
         ${imageHtml}
         <div class="project-body">
             <h3>
-                <a
-                    href="#project-modal-${escapeHtml(projectId)}"
-                    class="stretched-link"
-                >
+                <button type="button" data-dialog-open="project-modal-${escapeHtml(projectId)}" class="stretched-link project-title-button">
                     ${escapeHtml(project.title)}
-                </a>
+                </button>
             </h3>
 
             <p>${escapeHtml(project.short_description)}</p>
@@ -252,33 +238,26 @@ function buildProjectCardElement(item) {
 function buildProjectModalElement(item) {
     const project = item.fields;
     const projectId = item.pk;
-    const modalElement = document.createElement("div");
+    const modalElement = document.createElement("dialog");
 
     modalElement.id = `project-modal-${projectId}`;
-    modalElement.className = "modal dynamic-project-modal";
+    modalElement.className = "project-form-modal dynamic-project-modal";
+    modalElement.setAttribute("aria-labelledby", `detail-title-${projectId}`);
 
     const imageHtml = project.image_url
         ? `<img src="${escapeHtml(project.image_url)}" alt="Gambar ${escapeHtml(project.title)}" class="project-img">`
         : "";
 
     modalElement.innerHTML = `
-        <a
-            href="#"
-            class="modal-overlay"
-            aria-label="Tutup pop-up"
-        ></a>
+        <button type="button" data-dialog-close class="project-form-modal__backdrop" aria-label="Tutup pop-up"></button>
 
-        <div class="modal-content">
-            <a
-                href="#"
-                class="modal-close"
-                aria-label="Tutup pop-up"
-            >
+        <div class="project-form-modal__content">
+            <button type="button" data-dialog-close class="project-form-modal__close" aria-label="Tutup pop-up">
                 &times;
-            </a>
+            </button>
 
             ${imageHtml}
-            <h3>${escapeHtml(project.title)}</h3>
+            <h3 id="detail-title-${escapeHtml(projectId)}">${escapeHtml(project.title)}</h3>
             <p>${escapeHtml(project.full_description)}</p>
         </div>
     `;
@@ -301,10 +280,9 @@ function applyCategoryFilter() {
     const hasAnyProject = document.querySelectorAll("#grid .project-card").length > 0;
 
     if (hasAnyProject && visibleCards.length === 0) {
-        displayPageSection({ showGrid: true });
-        gridContainer.dataset.filterEmpty = "true";
+        displayPageSection({ showEmpty: true });
     } else {
-        gridContainer.dataset.filterEmpty = "false";
+        displayPageSection({ showGrid: hasAnyProject, showEmpty: !hasAnyProject });
     }
 }
 
@@ -368,8 +346,8 @@ function searchProjects() {
 
 function closeProjectModal() {
     const modal = document.getElementById("add-project-modal");
-    if (modal && modal.matches(":popover-open")) {
-        modal.hidePopover();
+    if (modal && modal.open) {
+        modal.close();
     }
 }
 
@@ -469,6 +447,7 @@ if (projectForm) {
     projectForm.addEventListener("submit", addProject);
 }
 
+document.getElementById("project-retry").addEventListener("click", searchProjects);
 fetchProjects(searchInput.value.trim());
 </script>
 {% endblock content %}

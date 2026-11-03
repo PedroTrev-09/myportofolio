@@ -19,7 +19,7 @@
                     <button
                         type="button"
                         class="button experience-add-button"
-                        popovertarget="add-experience-modal"
+                        data-dialog-open="add-experience-modal"
                     >
                         <span aria-hidden="true">+</span>
                         Add Experience
@@ -207,29 +207,29 @@ function buildExperienceElement(item) {
             const deleteButton = document.createElement("button");
             deleteButton.type = "button";
             deleteButton.className = "btn-danger-ghost";
-            deleteButton.setAttribute("popovertarget", `delete-exp-${experienceId}`);
+            deleteButton.setAttribute("data-dialog-open", `delete-exp-${experienceId}`);
             deleteButton.textContent = "Delete";
 
-            const deleteModal = document.createElement("div");
+            const deleteModal = document.createElement("dialog");
             deleteModal.id = `delete-exp-${experienceId}`;
             deleteModal.className = "project-delete-modal";
-            deleteModal.setAttribute("popover", "auto");
-            deleteModal.setAttribute("role", "dialog");
-            deleteModal.setAttribute("aria-modal", "true");
+            
+            
+            
             deleteModal.innerHTML = `
                 <button
                     type="button"
                     class="project-delete-modal_backdrop"
-                    popovertarget="delete-exp-${escapeHtml(experienceId)}"
-                    popovertargetaction="hide"
+                    data-dialog-open="delete-exp-${escapeHtml(experienceId)}"
+                    data-dialog-close
                     aria-label="Close delete confirmation"
                 ></button>
                 <div class="project-delete-modal_content" style="background: var(--bg); color: var(--ink);">
                     <button
                         type="button"
                         class="project-delete-modal_close"
-                        popovertarget="delete-exp-${escapeHtml(experienceId)}"
-                        popovertargetaction="hide"
+                        data-dialog-open="delete-exp-${escapeHtml(experienceId)}"
+                        data-dialog-close
                         aria-label="Close delete confirmation"
                     >&times;</button>
                     <h2>Delete Experience?</h2>
@@ -238,8 +238,8 @@ function buildExperienceElement(item) {
                         <button
                             type="button"
                             class="contact-link ghost"
-                            popovertarget="delete-exp-${escapeHtml(experienceId)}"
-                            popovertargetaction="hide"
+                            data-dialog-open="delete-exp-${escapeHtml(experienceId)}"
+                            data-dialog-close
                         >Cancel</button>
                         <form method="post" action="${escapeHtml(deleteUrl)}">
                             <input type="hidden" name="csrfmiddlewaretoken" value="${escapeHtml(getCookie("csrftoken") || "")}">
@@ -354,8 +354,8 @@ async function addExperience(event) {
         if (response.ok) {
             experienceForm.reset();
             const modal = document.getElementById("add-experience-modal");
-            if (modal && modal.matches(":popover-open")) {
-                modal.hidePopover();
+            if (modal && modal.open) {
+                modal.close();
             }
             showToast("Berhasil", "Experience baru berhasil ditambahkan!", "success");
             await fetchExperiences();

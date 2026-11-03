@@ -1,16 +1,16 @@
-<div
+<dialog
     id="add-experience-modal"
     class="project-form-modal"
-    popover="auto"
-    role="dialog"
-    aria-modal="true"
+    
+    
+    
     aria-labelledby="add-experience-modal-title"
 >
     <button
         type="button"
         class="project-form-modal__backdrop"
-        popovertarget="add-experience-modal"
-        popovertargetaction="hide"
+        data-dialog-open="add-experience-modal"
+        data-dialog-close
         aria-label="Tutup form tambah pengalaman"
     ></button>
 
@@ -18,8 +18,8 @@
         <button
             type="button"
             class="project-form-modal__close"
-            popovertarget="add-experience-modal"
-            popovertargetaction="hide"
+            data-dialog-open="add-experience-modal"
+            data-dialog-close
             aria-label="Tutup form tambah pengalaman"
         >×</button>
 
@@ -44,8 +44,8 @@
                 <button
                     type="button"
                     class="button button-secondary"
-                    popovertarget="add-experience-modal"
-                    popovertargetaction="hide"
+                    data-dialog-open="add-experience-modal"
+                    data-dialog-close
                 >
                     Batal
                 </button>
@@ -53,4 +53,4 @@
             </div>
         </form>
     </div>
-</div>
+</dialog>
