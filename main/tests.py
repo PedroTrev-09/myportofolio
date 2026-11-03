@@ -557,3 +557,26 @@ class ExperienceAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Experience.objects.count(), 2)
+
+
+class InputValidationRegressionTest(TestCase):
+    def test_experience_rejects_reversed_dates(self):
+        from main.forms import ExperienceForm
+        form = ExperienceForm(data={"title": "Designer", "location": "Depok",
+            "category": "part-time", "description": "Design work",
+            "started_at": "2026-09-01", "ended_at": "2026-08-01"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("ended_at", form.errors)
+
+    def test_project_rejects_unsafe_image_and_empty_markup(self):
+        from main.forms import ProjectForm
+        base = {"title": "Portfolio", "category": "design", "tags": "Django",
+            "short_description": "Short", "full_description": "Full", "image_url": "/static/img/monte.png"}
+        for image in ("javascript:alert(1)", "data:text/html,x", "//example.com/x", "/\\example.com/x"):
+            with self.subTest(image=image):
+                form = ProjectForm(data={**base, "image_url": image})
+                self.assertFalse(form.is_valid())
+                self.assertIn("image_url", form.errors)
+        form = ProjectForm(data={**base, "short_description": "<b></b>"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("short_description", form.errors)

@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils.html import strip_tags
+from .validation import experience_dates, image_url, plain_text
 
 from .models import Experience, Project
 
@@ -18,25 +18,22 @@ class ProjectForm(forms.ModelForm):
         ]
 
     def clean_title(self):
-        title = strip_tags(self.cleaned_data["title"]).strip()
-        if not title:
-            raise ValidationError("Nama proyek tidak boleh hanya berisi tag HTML.")
-        return title
+        return plain_text(self.cleaned_data["title"])
 
     def clean_category(self):
-        return strip_tags(self.cleaned_data["category"]).strip()
+        return plain_text(self.cleaned_data["category"])
 
     def clean_image_url(self):
-        return strip_tags(self.cleaned_data["image_url"]).strip()
+        return image_url(self.cleaned_data["image_url"])
 
     def clean_short_description(self):
-        return strip_tags(self.cleaned_data["short_description"]).strip()
+        return plain_text(self.cleaned_data["short_description"])
 
     def clean_full_description(self):
-        return strip_tags(self.cleaned_data["full_description"]).strip()
+        return plain_text(self.cleaned_data["full_description"])
 
     def clean_tags(self):
-        return strip_tags(self.cleaned_data["tags"]).strip()
+        return plain_text(self.cleaned_data["tags"])
 
 
 class ExperienceForm(forms.ModelForm):
@@ -56,19 +53,18 @@ class ExperienceForm(forms.ModelForm):
         }
 
     def clean_title(self):
-        title = strip_tags(self.cleaned_data["title"]).strip()
-        if not title:
-            raise ValidationError("Judul pengalaman tidak boleh hanya berisi tag HTML.")
-        return title
+        return plain_text(self.cleaned_data["title"])
 
     def clean_location(self):
-        location = strip_tags(self.cleaned_data["location"]).strip()
-        if not location:
-            raise ValidationError("Lokasi tidak boleh hanya berisi tag HTML.")
-        return location
+        return plain_text(self.cleaned_data["location"])
 
     def clean_description(self):
-        description = strip_tags(self.cleaned_data["description"]).strip()
-        if not description:
-            raise ValidationError("Deskripsi tidak boleh hanya berisi tag HTML.")
-        return description
+        return plain_text(self.cleaned_data["description"])
+
+    def clean(self):
+        data = super().clean()
+        try:
+            experience_dates(data.get("started_at"), data.get("ended_at"))
+        except ValidationError as error:
+            self.add_error("ended_at", error)
+        return data
