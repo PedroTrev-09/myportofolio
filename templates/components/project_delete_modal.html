@@ -1,36 +1,30 @@
-<button type="button" 
-        class="btn-danger-ghost" 
+<button type="button"
+        class="btn-danger-ghost"
         data-dialog-open="delete-project-{{ project.id }}">
     Delete
 </button>
 
-<dialog id="delete-project-{{ project.id }}" 
-     class="project-delete-modal" 
-      
-      
-      
+<dialog id="delete-project-{{ project.id }}"
+     class="project-delete-modal"
      aria-labelledby="delete-project-title-{{ project.id }}">
-     
-    <button type="button" 
-            class="project-delete-modal_backdrop" 
-            data-dialog-open="delete-project-{{ project.id }}"
-            data-dialog-close 
+
+    <button type="button"
+            class="project-delete-modal_backdrop"
+            data-dialog-close
             aria-label="Tutup konfirmasi hapus"></button>
-            
+
     <div class="project-delete-modal_content" style="background: var(--bg); color: var(--ink);">
-        <button type="button" 
-                class="project-delete-modal_close" 
-                data-dialog-open="delete-project-{{ project.id }}" 
-                data-dialog-close 
+        <button type="button"
+                class="project-delete-modal_close"
+                data-dialog-close
                 aria-label="Tutup konfirmasi hapus">&times;</button>
-                
+
         <h2 id="delete-project-title-{{ project.id }}" style="color: var(--heading);">Delete Project?</h2>
         <p>Are you sure you want to delete <strong>{{ project.title }}</strong>?</p>
-        
+
         <div class="project-delete-modal_actions">
-            <button type="button" 
-                    class="contact-link ghost" 
-                    data-dialog-open="delete-project-{{ project.id }}" 
+            <button type="button"
+                    class="contact-link ghost"
                     data-dialog-close>Cancel</button>
             <form method="post" action="{% url 'main:delete_project' project.id %}" style="display: flex; gap: 0.75rem; align-items: center;">
                 {% csrf_token %}

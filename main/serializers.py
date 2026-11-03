@@ -2,8 +2,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from main.models import Experience, Project
-from main.validation import experience_dates, image_url, plain_text
-from main.views import clean_experience_description
+from main.validation import clean_experience_description, experience_dates, image_url, plain_text
 
 
 class PlainTextModelSerializer(serializers.ModelSerializer):

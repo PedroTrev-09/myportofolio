@@ -120,3 +120,5 @@ sftp-config.json
 
 # macOS
 .DS_Store
+# Collected build assets (source lives in static/)
+staticfiles/

@@ -1,5 +1,4 @@
 import datetime
-import re
 
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -8,11 +7,13 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.utils.html import strip_tags
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from main.forms import ExperienceForm, ProjectForm
 from main.models import Experience, Project
+from main.validation import clean_experience_description
 
 
 def show_main(request):
@@ -40,14 +41,6 @@ def can_edit_data(user):
 
 def can_manage_data(user):
     return user.is_superuser
-
-
-def clean_experience_description(value):
-    """Convert legacy list markup to readable plain text before JSON serialization."""
-    value = value.replace("\r\n", "\n").replace("\r", "\n")
-    value = re.sub(r"<\s*/\s*li\s*>", "\n", value, flags=re.IGNORECASE)
-    value = re.sub(r"<\s*li\b[^>]*>", "- ", value, flags=re.IGNORECASE)
-    return strip_tags(value).strip()
 
 
 def show_experience(request):
@@ -174,7 +167,10 @@ def login_user(request):
         user = form.get_user()
         login(request, user)
 
-        response = redirect("main:show_main")
+        next_url = request.POST.get("next", request.GET.get("next", ""))
+        if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+            next_url = ""
+        response = redirect(next_url or "main:show_main")
 
         response.set_cookie(
             "last_login",
@@ -187,6 +183,7 @@ def login_user(request):
         "name": "Haikal Rafka A Rahman",
         "headerName": "Haikal Rafka",
         "form": form,
+        "next_url": request.POST.get("next", request.GET.get("next", "")),
     }
     return render(request, "login.html", context)
 

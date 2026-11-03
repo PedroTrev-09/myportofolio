@@ -570,7 +570,7 @@ class InputValidationRegressionTest(TestCase):
         from main.forms import ProjectForm
         base = {"title": "Portfolio", "category": "design", "tags": "Django",
             "short_description": "Short", "full_description": "Full", "image_url": "/static/img/monte.png"}
-        for image in ("javascript:alert(1)", "data:text/html,x", "//example.com/x", "/\\example.com/x"):
+        for image in ("javascript:alert(1)", "data:text/html,x", "http://[invalid", "//example.com/x", "/\\example.com/x"):
             with self.subTest(image=image):
                 form = ProjectForm(data={**base, "image_url": image})
                 self.assertFalse(form.is_valid())
@@ -578,3 +578,30 @@ class InputValidationRegressionTest(TestCase):
         form = ProjectForm(data={**base, "short_description": "<b></b>"})
         self.assertFalse(form.is_valid())
         self.assertIn("short_description", form.errors)
+
+
+class LoginRedirectTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        User.objects.create_user(username="redirect-user", password="test-password")
+
+    def test_login_returns_to_portfolio_page(self):
+        response = self.client.post(reverse("main:login"), {"username": "redirect-user", "password": "test-password", "next": "/project/"})
+        self.assertRedirects(response, "/project/", fetch_redirect_response=False)
+
+    def test_login_rejects_external_redirect(self):
+        for target in ("https://example.com/", "//example.com/", "javascript:alert(1)"):
+            with self.subTest(target=target):
+                self.client.logout()
+                response = self.client.post(reverse("main:login"), {"username": "redirect-user", "password": "test-password", "next": target})
+                self.assertRedirects(response, "/", fetch_redirect_response=False)
+
+
+    def test_login_form_renders_with_or_without_next(self):
+        for params in ({}, {"next": "/project/"}):
+            response = self.client.get(reverse("main:login"), params)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'id="id_username"')
+        response = self.client.post(reverse("main:login"), {"username": "wrong", "password": "wrong", "next": "/project/"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="/project/"')
