@@ -45,6 +45,8 @@ Saya juga memperhatikan bahwa data Experience lama di database masih memiliki be
 
 **Individual Assignment 5 (done)**
 
+**Tutorial 07 (done)**
+
 ## Deskripsi Proyek
 
 Website portofolio pribadi untuk mata kuliah Pemrograman Berbasis Platform (PBP). Website menampilkan profil, pengalaman, dan proyek, serta dikembangkan secara bertahap mengikuti tutorial dan individual assignment.
@@ -56,7 +58,7 @@ Pada Individual Assignment 5, halaman **Experience** dikembangkan dengan pola in
 Prasyarat: Python 3.x dan Git.
 
 ```bash
-git clone <https://github.com/PedroTrev-09/myportofolio.git>
+git clone https://github.com/PedroTrev-09/myportofolio.git
 cd myportofolio
 python -m venv env
 source env/bin/activate
@@ -96,7 +98,7 @@ Implementasi pola Web Interactivity dengan JavaScript diterapkan pada halaman **
 
 ```bash
 python manage.py check
-python manage.py test
+python manage.py test main
 python manage.py collectstatic --noinput
 python manage.py runserver
 ```
@@ -136,3 +138,4 @@ Saya menggunakan **ChatGPT** untuk membantu membaca requirement Tugas 5, memband
 Perubahan AI tidak langsung dianggap final. Saya membandingkan diff dengan repository awal, mempertahankan struktur model dan route yang sudah ada, dan memastikan hak akses tetap dilaunch di server.
 
 Salah satu batasan yang saya perhatikan adalah AI dapat terlalu mudah mengubah struktur HTML jika diminta melakukan refactor besar. Karena itu pada Tugas 5 perubahan difokuskan pada file yang benar-benar diperlukan: `main/views.py`, `main/forms.py`, `main/urls.py`, `main/tests.py`, `templates/experience.html`, komponen modal Experience, dan `static/css/style.css`. Saya juga menambahkan automated tests untuk endpoint, role authorization, validation, sanitasi input, CSRF, dan kompatibilitas dengan CRUD Experience dari Tutorial 04.
+
