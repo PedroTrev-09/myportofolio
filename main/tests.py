@@ -85,7 +85,7 @@ class ProjectTest(TestCase):
         self.assertContains(response, "loading")
         self.assertContains(response, "error")
         self.assertContains(response, "empty")
-        self.assertContains(response, "fetchProjects")
+        self.assertContains(response, "js/projects.js")
         self.assertNotContains(response, self.project.title)
 
     def test_projects_json_returns_project_data(self):
@@ -259,14 +259,12 @@ class ProjectTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Project.objects.filter(pk=self.project.id).exists())
 
-    def test_dynamic_project_controls_preserve_editor_role(self):
+    def test_project_api_controls_are_owner_only(self):
         self.client.login(username="editor-user", password="StrongPassword123!")
         response = self.client.get(reverse("main:show_project"))
-
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'const IS_EDITOR = "true" === "true";')
-        self.assertContains(response, "IS_SUPERUSER || IS_EDITOR")
-        self.assertContains(response, "projectEditUrlTemplate")
+        self.assertContains(response, 'const IS_SUPERUSER = "false" === "true";')
+        self.assertContains(response, reverse("api:project-list"))
         self.assertNotContains(response, "project-add-button")
 
     def test_superuser_gets_project_modal_controls(self):
@@ -278,7 +276,7 @@ class ProjectTest(TestCase):
         self.assertContains(response, 'id="project-form"')
         self.assertContains(
             response,
-            f'action="{reverse("main:create_project_ajax")}"',
+            f'action="{reverse("api:project-list")}"',
         )
 
 
@@ -318,7 +316,7 @@ class ExperienceAjaxTest(TestCase):
         self.assertContains(response, "experience-loading")
         self.assertContains(response, "experience-error")
         self.assertContains(response, "experience-empty")
-        self.assertContains(response, "fetchExperiences")
+        self.assertContains(response, "js/experiences.js")
         self.assertNotContains(response, self.experience.title)
 
     def test_experiences_json_returns_public_data(self):

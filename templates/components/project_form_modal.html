@@ -28,7 +28,7 @@
         <form
             id="project-form"
             method="post"
-            action="{% url 'main:create_project_ajax' %}"
+            action="{% url 'api:project-list' %}"
             class="project-form"
         >
             {% csrf_token %}

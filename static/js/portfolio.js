@@ -16,6 +16,19 @@ window.PortfolioUI = {
             return ["http:", "https:"].includes(url.protocol) ? url.href : "";
         } catch { return ""; }
     },
+    confirmDelete(title) {
+        const dialog = document.getElementById("delete-confirmation");
+        if (dialog.open) return Promise.resolve(false);
+        dialog.querySelector("strong").textContent = title;
+        dialog.returnValue = "";
+        return new Promise(resolve => {
+            dialog.querySelector("form").onsubmit = event => {
+                event.preventDefault(); dialog.close("delete");
+            };
+            dialog.addEventListener("close", () => resolve(dialog.returnValue === "delete"), { once: true });
+            dialog.showModal();
+        });
+    },
     async write(url, method, payload) {
         const response = await fetch(url, {
             method,
