@@ -39,6 +39,7 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 INSTALLED_APPS = [
     'main',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

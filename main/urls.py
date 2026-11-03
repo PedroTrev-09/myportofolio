@@ -40,6 +40,7 @@ urlpatterns = [
     ),
 
     path("project/", show_project, name="show_project"),
+    path("projects/", show_project, name="show_projects"),
     path("projects/add/", create_project, name="create_project"),
     path("projects/add-ajax/", create_project_ajax, name="create_project_ajax"),
     path(
