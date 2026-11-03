@@ -5,7 +5,7 @@
         <h2 id="delete-confirmation-title">Delete item?</h2>
         <p>Are you sure you want to delete <strong></strong>?</p>
         <div class="project-delete-modal_actions">
-            <button type="button" class="button button-secondary" data-dialog-close>Cancel</button>
+            <button type="button" class="button button-secondary" data-dialog-close autofocus>Cancel</button>
             <form method="post">{% csrf_token %}<button type="submit" class="btn-danger-fill">Yes, delete</button></form>
         </div>
     </div>

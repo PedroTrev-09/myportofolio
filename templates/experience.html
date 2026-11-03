@@ -96,6 +96,9 @@
 <script>
 const BASE_EXPERIENCES_ENDPOINT = "{% url 'api:experience-list' %}";
 const DETAIL_EXPERIENCE_ENDPOINT = "{% url 'api:experience-detail' '00000000-0000-0000-0000-000000000000' %}";
+const STAR_EXPERIENCE_ENDPOINT = "{% url 'api:experience-star' '00000000-0000-0000-0000-000000000000' %}";
+const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+const LOGIN_URL = "{% url 'main:login' %}";
 const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
 const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
 </script>

@@ -29,16 +29,23 @@ function buildExperienceElement(experience, expandedIds) {
     details.className = "timeline-item";
     details.dataset.id = experience.id;
     details.open = expandedIds.has(experience.id);
+    const star = IS_AUTHENTICATED
+        ? `<button type="button" class="button-star${experience.is_starred ? " is-starred" : ""}"
+            data-action="star" data-id="${escapeHtml(experience.id)}" aria-pressed="${experience.is_starred}"
+            title="${escapeHtml(experience.starred_by_names || "Be the first to star this experience")}">
+            <span aria-hidden="true">★</span> ${experience.is_starred ? "Unstar" : "Star"}
+            <span class="star-count">${escapeHtml(experience.star_count)}</span></button>`
+        : `<a class="button-star" href="${escapeHtml(LOGIN_URL)}?next=${encodeURIComponent(location.pathname)}">Login to star <span class="star-count">${escapeHtml(experience.star_count)}</span></a>`;
     const manage = IS_SUPERUSER || IS_EDITOR
-        ? `<div class="experience-actions"><button type="button" class="button button-secondary"
+        ? `<button type="button" class="button button-secondary"
             data-action="edit" data-id="${escapeHtml(experience.id)}">Edit</button>
-            ${IS_SUPERUSER ? `<button type="button" class="btn-danger-ghost" data-action="delete" data-id="${escapeHtml(experience.id)}">Delete</button>` : ""}</div>` : "";
+            ${IS_SUPERUSER ? `<button type="button" class="btn-danger-ghost" data-action="delete" data-id="${escapeHtml(experience.id)}">Delete</button>` : ""}` : "";
     details.innerHTML = `<summary><span class="timeline-role">${escapeHtml(experience.title)}</span>
         <span class="timeline-period">${escapeHtml(experience.started_at.slice(0, 4))} &mdash;
         ${escapeHtml(experience.is_ongoing ? "Present" : experience.ended_at.slice(0, 4))}</span>
         <span class="chevron" aria-hidden="true">⌄</span></summary>
         <div class="timeline-body"><p class="experience-category">${escapeHtml(experience.category_display)}</p>
-        <p>${escapeHtml(experience.location)}</p><p class="timeline-description">${escapeHtml(experience.description)}</p>${manage}</div>`;
+        <p>${escapeHtml(experience.location)}</p><p class="timeline-description">${escapeHtml(experience.description)}</p><div class="experience-actions">${star}${manage}</div></div>`;
     return details;
 }
 
@@ -87,11 +94,13 @@ listContainer.addEventListener("click", async event => {
     }
     button.disabled = true;
     try {
-        if (!await PortfolioUI.confirmDelete(experience.title)) return;
-        await writeExperience(experienceEndpoint(experience.id), "DELETE");
-        showToast("Success", "Experience deleted.", "success");
+        const isStar = button.dataset.action === "star";
+        if (!isStar && !await PortfolioUI.confirmDelete(experience.title)) return;
+        const url = isStar ? STAR_EXPERIENCE_ENDPOINT.replace("00000000-0000-0000-0000-000000000000", encodeURIComponent(experience.id)) : experienceEndpoint(experience.id);
+        await writeExperience(url, isStar ? "POST" : "DELETE");
+        showToast("Success", isStar ? "Star updated." : "Experience deleted.", "success");
         await fetchExperiences();
-    } catch (error) { showToast("Could not delete experience", error.message, "error"); }
+    } catch (error) { showToast("Request failed", error.message, "error"); }
     finally { button.disabled = false; }
 });
 

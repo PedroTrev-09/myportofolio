@@ -22,11 +22,24 @@ class PlainTextModelSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class ProjectSerializer(PlainTextModelSerializer):
-    text_fields = ("title", "category", "short_description", "full_description", "tags")
+class StarredModelSerializer(PlainTextModelSerializer):
     star_count = serializers.SerializerMethodField()
     is_starred = serializers.SerializerMethodField()
     starred_by_names = serializers.SerializerMethodField()
+
+    def get_star_count(self, obj):
+        return obj.starred_by.count()
+
+    def get_is_starred(self, obj):
+        request = self.context.get("request")
+        return bool(request and request.user.is_authenticated and request.user in obj.starred_by.all())
+
+    def get_starred_by_names(self, obj):
+        return ", ".join(user.username for user in obj.starred_by.all())
+
+
+class ProjectSerializer(StarredModelSerializer):
+    text_fields = ("title", "category", "short_description", "full_description", "tags")
 
     class Meta:
         model = Project
@@ -41,18 +54,8 @@ class ProjectSerializer(PlainTextModelSerializer):
         except (DjangoValidationError, ValueError) as error:
             raise serializers.ValidationError("Use an HTTP(S) image URL or root-relative asset path.") from error
 
-    def get_star_count(self, obj):
-        return obj.starred_by.count()
 
-    def get_is_starred(self, obj):
-        request = self.context.get("request")
-        return bool(request and request.user.is_authenticated and request.user in obj.starred_by.all())
-
-    def get_starred_by_names(self, obj):
-        return ", ".join(user.username for user in obj.starred_by.all())
-
-
-class ExperienceSerializer(PlainTextModelSerializer):
+class ExperienceSerializer(StarredModelSerializer):
     text_fields = ("title", "location", "description")
     category_display = serializers.CharField(source="get_category_display", read_only=True)
     is_ongoing = serializers.BooleanField(read_only=True)
@@ -60,7 +63,7 @@ class ExperienceSerializer(PlainTextModelSerializer):
     class Meta:
         model = Experience
         fields = ["id", "title", "location", "description", "category", "category_display",
-                  "started_at", "ended_at", "is_ongoing"]
+                  "started_at", "ended_at", "is_ongoing", "star_count", "is_starred", "starred_by_names"]
         read_only_fields = ["id"]
 
     def validate(self, attrs):

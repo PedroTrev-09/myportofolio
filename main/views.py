@@ -221,7 +221,7 @@ def create_project(request):
 
 @login_required(login_url="/login/")
 def update_project(request, id):
-    if not can_edit_data(request.user):
+    if not can_manage_data(request.user):
         raise PermissionDenied
 
     project = get_object_or_404(Project, pk=id)

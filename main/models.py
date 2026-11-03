@@ -18,6 +18,8 @@ class Experience(models.Model):
     description = models.TextField()
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
     
+    starred_by = models.ManyToManyField(User, related_name="starred_experiences", blank=True)
+
     started_at = models.DateField() 
     ended_at = models.DateField(blank=True, null=True)
     

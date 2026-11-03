@@ -230,7 +230,7 @@ class ProjectTest(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertTrue(Project.objects.filter(pk=self.project.id).exists())
 
-    def test_editor_can_update_project(self):
+    def test_editor_cannot_bypass_projects_api_via_html_update(self):
         self.client.login(username="editor-user", password="StrongPassword123!")
 
         response = self.client.post(
@@ -245,9 +245,9 @@ class ProjectTest(TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 403)
         self.project.refresh_from_db()
-        self.assertEqual(self.project.title, "Edited By Editor")
+        self.assertEqual(self.project.title, "Monte De Carlo")
 
     def test_superuser_can_delete_project(self):
         self.client.login(username="owner", password="StrongPassword123!")

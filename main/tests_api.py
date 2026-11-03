@@ -250,3 +250,39 @@ class ExperienceAPITest(APITestCase):
         self.client.force_authenticate(self.owner)
         self.assertEqual(self.client.delete(self.list_url).status_code, 405)
         self.assertEqual(self.client.post(self.detail_url, self.payload, format="json").status_code, 405)
+
+
+    def test_experience_star_uses_current_user_and_toggles(self):
+        url = reverse("api:experience-star", args=[self.experience.pk])
+        self.assertEqual(self.client.post(url).status_code, 403)
+        self.assertEqual(self.client.get(url).status_code, 403)
+        for user in (self.visitor, self.editor, self.owner):
+            self.client.force_authenticate(user)
+            response = self.client.post(url, {"user": self.owner.pk}, format="json")
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.data["is_starred"])
+            self.assertEqual(response.data["star_count"], 1)
+            self.assertEqual(response.data["starred_by_names"], user.username)
+            self.assertTrue(self.experience.starred_by.filter(pk=user.pk).exists())
+            self.assertEqual(self.client.get(url).status_code, 405)
+            response = self.client.post(url)
+            self.assertFalse(response.data["is_starred"])
+            self.assertEqual(response.data["star_count"], 0)
+
+    def test_experience_computed_fields_cannot_be_forged(self):
+        self.client.force_authenticate(self.owner)
+        response = self.client.post(self.list_url, {**self.payload, "star_count": 99,
+            "is_starred": True, "starred_by_names": "forged", "starred_by": [self.visitor.pk]}, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["star_count"], 0)
+        self.assertFalse(response.data["is_starred"])
+        self.assertEqual(response.data["starred_by_names"], "")
+
+    def test_experience_star_enforces_session_csrf(self):
+        client = APIClient(enforce_csrf_checks=True)
+        client.login(username="exp-visitor", password="test-password")
+        url = reverse("api:experience-star", args=[self.experience.pk])
+        self.assertEqual(client.post(url).status_code, 403)
+        client.get(reverse("main:show_experience"))
+        token = client.cookies["csrftoken"].value
+        self.assertEqual(client.post(url, HTTP_X_CSRFTOKEN=token).status_code, 200)

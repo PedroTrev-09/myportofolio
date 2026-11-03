@@ -8,6 +8,7 @@ from .models import Experience, Project
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
+        widgets = {"title": forms.TextInput(attrs={"autofocus": True})}
         fields = [
             "title",
             "category",
@@ -48,6 +49,7 @@ class ExperienceForm(forms.ModelForm):
             "description",
         ]
         widgets = {
+            "title": forms.TextInput(attrs={"autofocus": True}),
             "started_at": forms.DateInput(attrs={"type": "date"}),
             "ended_at": forms.DateInput(attrs={"type": "date"}),
         }
