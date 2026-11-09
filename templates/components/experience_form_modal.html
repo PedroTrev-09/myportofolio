@@ -29,12 +29,14 @@
             {% csrf_token %}
             <p class="form-feedback" data-form-feedback role="alert" tabindex="-1" hidden></p>
 
+            <div class="experience-form-fields">
             {% for field in form %}
-                <div class="form-group">
+                <div class="form-group form-group--{{ field.name }}">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                 </div>
             {% endfor %}
+            </div>
 
             <div class="project-form-modal__actions">
                 <button

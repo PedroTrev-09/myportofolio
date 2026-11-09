@@ -1130,3 +1130,11 @@ body:has(#theme-toggle:checked) .form-error { color: #ffb4a8; }
 body:has(#theme-toggle:checked) .form-group [aria-invalid="true"] { border-color: #ffb4a8; }
 .empty-state .button { margin-top: 1rem; }
 .experience-actions button:disabled { cursor: wait; opacity: .65; }
+
+.experience-form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
+.experience-form-fields .form-group--title, .experience-form-fields .form-group--description { grid-column: 1 / -1; }
+#experience-form .project-form-modal__actions { position: sticky; bottom: -1.5rem; padding: .75rem 0; margin-top: .5rem; border-top: 1px solid var(--line); background: var(--bg); }
+@media (max-width: 600px) {
+    .experience-form-fields { grid-template-columns: 1fr; }
+    #experience-form .project-form-modal__actions { bottom: -1.25rem; }
+}

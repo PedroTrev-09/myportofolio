@@ -151,6 +151,7 @@ function gate() { let release; const promise = new Promise(resolve => { release 
   check(await owner.locator('#toast-message').textContent().then(text=>text.length>0),'403 is shown through a toast');
   check(await form(owner).locator('[data-form-feedback]').isVisible(),'403 also has persistent in-form feedback');
   check((await publicData(ownerContext)).find(item=>item.id===created.id).title===title,'Rejected update leaves the stored title unchanged');
+  await owner.waitForFunction(()=>getComputedStyle(document.getElementById('toast-component')).borderLeftColor==='rgb(180, 35, 24)');
   await owner.screenshot({path:path.join(output,'experience-403-desktop.png'),fullPage:true});
 
   const {context:editorContext,page:editor}=await session('qa-editor');
@@ -203,6 +204,8 @@ function gate() { let release; const promise = new Promise(resolve => { release 
   // Return to an authorized owner session for confirmation, deletion and mobile QA.
   const {context:finalContext,page:final}=await session('qa-owner');
   await final.locator('label[for=theme-toggle]').click();
+  await final.waitForFunction(()=>getComputedStyle(document.body).color==='rgb(247, 231, 196)');
+  check(await final.locator('.timeline-role').first().evaluate(el=>getComputedStyle(el).color==='rgb(247, 231, 196)'),'Dark theme text reaches its readable final color');
   await final.screenshot({path:path.join(output,'experience-desktop-dark.png'),fullPage:true});
   let finalCard=card(final,title); await finalCard.locator('summary').click(); await finalCard.locator('[data-action=delete]').click();
   await final.locator('#delete-confirmation button[data-dialog-close]').last().click();
@@ -219,10 +222,13 @@ function gate() { let release; const promise = new Promise(resolve => { release 
   await final.waitForSelector('#experience-form [aria-invalid=true]');
   check(await final.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Mobile Experience has no horizontal overflow');
   check(await final.locator('#add-experience-modal .project-form-modal__content').evaluate(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<=innerHeight+1;}),'Mobile edit/create modal fits the viewport');
+  check(await form(final).locator('button[type=submit]').evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight+1;}),'Mobile save action remains visible while editing');
   check(await final.locator('#toast-component').evaluate(el=>el.matches(':popover-open')),'Toast can appear above the active modal');
   await final.screenshot({path:path.join(output,'experience-mobile-validation.png')});
   await final.keyboard.press('Escape');
   await final.locator('label[for=theme-toggle]').click();
+  await final.waitForFunction(()=>getComputedStyle(document.body).color==='rgb(43, 27, 20)');
+  check(await final.locator('.timeline-role').first().evaluate(el=>getComputedStyle(el).color==='rgb(43, 27, 20)'),'Light theme text reaches its readable final color');
   await final.screenshot({path:path.join(output,'experience-mobile-light.png'),fullPage:true});
   for(const request of writes) {
    const headers=await request.allHeaders();

@@ -52,6 +52,7 @@ class ExperienceForm(forms.ModelForm):
             "title": forms.TextInput(attrs={"autofocus": True}),
             "started_at": forms.DateInput(attrs={"type": "date"}),
             "ended_at": forms.DateInput(attrs={"type": "date"}),
+            "description": forms.Textarea(attrs={"rows": 4}),
         }
 
     def clean_title(self):
