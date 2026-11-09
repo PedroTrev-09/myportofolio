@@ -1122,3 +1122,11 @@ dialog::backdrop { background: rgba(28, 25, 23, .58); }
     .project-form-modal__content { max-height: 90dvh; }
     .project-delete-modal_actions { flex-wrap: wrap; }
 }
+
+/* Assignment 6: actionable API feedback in the existing Experience modal. */
+.form-feedback { padding: .75rem 1rem; margin-bottom: 1rem; border: 1px solid var(--line); border-left: 4px solid #b42318; border-radius: var(--radius-sm); background: var(--bg-alt); color: var(--ink); }
+.form-group [aria-invalid="true"] { border-color: #b42318; }
+body:has(#theme-toggle:checked) .form-error { color: #ffb4a8; }
+body:has(#theme-toggle:checked) .form-group [aria-invalid="true"] { border-color: #ffb4a8; }
+.empty-state .button { margin-top: 1rem; }
+.experience-actions button:disabled { cursor: wait; opacity: .65; }

@@ -27,6 +27,7 @@
             class="project-form"
         >
             {% csrf_token %}
+            <p class="form-feedback" data-form-feedback role="alert" tabindex="-1" hidden></p>
 
             {% for field in form %}
                 <div class="form-group">

@@ -11,6 +11,27 @@ let experiences = [];
 let experienceAbortController;
 let experienceSearchDebounceTimer;
 let editingExperienceId = null;
+const pendingExperienceIds = new Set();
+const savingControls = new Map();
+
+function setExperienceSaving(saving) {
+    experienceForm.setAttribute("aria-busy", String(saving));
+    if (saving) {
+        experienceModal.querySelectorAll("input, select, textarea, button").forEach(control => {
+            savingControls.set(control, control.disabled);
+            control.disabled = true;
+        });
+    } else {
+        savingControls.forEach((disabled, control) => { control.disabled = disabled; });
+        savingControls.clear();
+    }
+    experienceForm.querySelector("button[type=submit]").textContent = saving ? "Saving…"
+        : editingExperienceId ? "Save changes" : "Add Experience";
+}
+
+experienceModal?.addEventListener("cancel", event => {
+    if (experienceForm.getAttribute("aria-busy") === "true") event.preventDefault();
+});
 
 function experienceEndpoint(id) {
     return DETAIL_EXPERIENCE_ENDPOINT.replace("00000000-0000-0000-0000-000000000000", encodeURIComponent(id));
@@ -46,6 +67,9 @@ function buildExperienceElement(experience, expandedIds) {
         <span class="chevron" aria-hidden="true">⌄</span></summary>
         <div class="timeline-body"><p class="experience-category">${escapeHtml(experience.category_display)}</p>
         <p>${escapeHtml(experience.location)}</p><p class="timeline-description">${escapeHtml(experience.description)}</p><div class="experience-actions">${star}${manage}</div></div>`;
+    if (pendingExperienceIds.has(experience.id)) {
+        details.querySelectorAll("button[data-action]").forEach(button => { button.disabled = true; });
+    }
     return details;
 }
 
@@ -58,6 +82,13 @@ async function fetchExperiences() {
     const category = document.querySelector("input[name='experience-filter']:checked")?.value || "all";
     if (searchInput.value.trim()) url.searchParams.set("title", searchInput.value.trim());
     if (category !== "all") url.searchParams.set("category", category);
+    // Bookmarkable state: retain search/category without a document navigation.
+    const pageUrl = new URL(location.href);
+    for (const name of ["title", "category"]) {
+        if (url.searchParams.has(name)) pageUrl.searchParams.set(name, url.searchParams.get(name));
+        else pageUrl.searchParams.delete(name);
+    }
+    history.replaceState(null, "", pageUrl);
     displayExperienceSection({ showLoading: true });
     countState.textContent = "";
     try {
@@ -77,6 +108,7 @@ async function fetchExperiences() {
 function prepareExperienceForm(experience = null) {
     editingExperienceId = experience?.id || null;
     experienceForm.reset();
+    PortfolioUI.clearFormErrors(experienceForm);
     for (const name of ["title", "category", "location", "started_at", "ended_at", "description"]) {
         if (experience) experienceForm.elements[name].value = experience[name] ?? "";
     }
@@ -88,10 +120,13 @@ listContainer.addEventListener("click", async event => {
     const button = event.target.closest("button[data-action]");
     if (!button || button.disabled) return;
     const experience = experiences.find(item => item.id === button.dataset.id);
-    if (!experience) return;
+    if (!experience || pendingExperienceIds.has(experience.id)) return;
     if (button.dataset.action === "edit") {
         prepareExperienceForm(experience); experienceModal.showModal(); return;
     }
+    const action = button.dataset.action;
+    if (!["star", "delete"].includes(action)) return;
+    pendingExperienceIds.add(experience.id);
     button.disabled = true;
     try {
         const isStar = button.dataset.action === "star";
@@ -101,7 +136,18 @@ listContainer.addEventListener("click", async event => {
         showToast("Success", isStar ? "Star updated." : "Experience deleted.", "success");
         await fetchExperiences();
     } catch (error) { showToast("Request failed", error.message, "error"); }
-    finally { button.disabled = false; }
+    finally {
+        pendingExperienceIds.delete(experience.id);
+        button.disabled = false;
+        listContainer.querySelectorAll("button[data-action]").forEach(control => {
+            if (control.dataset.id === experience.id) control.disabled = false;
+        });
+        if (document.activeElement === document.body) {
+            const replacement = [...listContainer.querySelectorAll("button[data-action]")]
+                .find(control => control.dataset.id === experience.id && control.dataset.action === action);
+            (replacement || searchInput).focus({ preventScroll: true });
+        }
+    }
 });
 
 if (experienceForm) {
@@ -110,19 +156,23 @@ if (experienceForm) {
         event.preventDefault();
         const button = experienceForm.querySelector("button[type=submit]");
         if (button.disabled) return;
-        button.disabled = true;
-        try {
-            const payload = Object.fromEntries(["title", "category", "location", "started_at", "ended_at", "description"]
+        PortfolioUI.clearFormErrors(experienceForm);
+        const payload = Object.fromEntries(["title", "category", "location", "started_at", "ended_at", "description"]
                 .map(name => [name, experienceForm.elements[name].value]));
-            payload.ended_at ||= null;
+        payload.ended_at ||= null;
+        setExperienceSaving(true);
+        try {
             await writeExperience(editingExperienceId ? experienceEndpoint(editingExperienceId) : BASE_EXPERIENCES_ENDPOINT,
                 editingExperienceId ? "PATCH" : "POST", payload);
             experienceModal.close();
             showToast("Success", editingExperienceId ? "Experience updated." : "Experience created.", "success");
             experienceForm.reset();
             await fetchExperiences();
-        } catch (error) { showToast("Could not save experience", error.message, "error"); }
-        finally { button.disabled = false; }
+        } catch (error) {
+            setExperienceSaving(false);
+            PortfolioUI.showFormErrors(experienceForm, error);
+            showToast("Could not save experience", error.message, "error");
+        } finally { setExperienceSaving(false); }
     });
 }
 searchInput.addEventListener("input", () => {
@@ -135,5 +185,12 @@ document.getElementById("experience-search-form").addEventListener("submit", eve
 document.querySelectorAll("input[name='experience-filter']").forEach(input => input.addEventListener("change", () => {
     clearTimeout(experienceSearchDebounceTimer); fetchExperiences();
 }));
+document.getElementById("experience-clear-filters").addEventListener("click", () => {
+    clearTimeout(experienceSearchDebounceTimer);
+    searchInput.value = "";
+    document.getElementById("experience-filter-all").checked = true;
+    fetchExperiences();
+    searchInput.focus();
+});
 document.getElementById("experience-retry").addEventListener("click", fetchExperiences);
 fetchExperiences();

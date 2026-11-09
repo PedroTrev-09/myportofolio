@@ -29,6 +29,42 @@ window.PortfolioUI = {
             dialog.showModal();
         });
     },
+    clearFormErrors(form) {
+        form.querySelectorAll("[data-api-error]").forEach(node => node.remove());
+        form.querySelectorAll("[aria-invalid]").forEach(control => {
+            control.removeAttribute("aria-invalid");
+            const ids = (control.getAttribute("aria-describedby") || "").split(" ")
+                .filter(id => id && !id.endsWith("-api-error"));
+            if (ids.length) control.setAttribute("aria-describedby", ids.join(" "));
+            else control.removeAttribute("aria-describedby");
+        });
+        const feedback = form.querySelector("[data-form-feedback]");
+        if (feedback) { feedback.hidden = true; feedback.textContent = ""; }
+    },
+    showFormErrors(form, error) {
+        PortfolioUI.clearFormErrors(form);
+        let firstInvalid;
+        for (const [name, messages] of Object.entries(error.fields || {})) {
+            const control = form.elements.namedItem(name);
+            if (!control || !control.closest) continue;
+            const hint = document.createElement("p");
+            hint.className = "form-error";
+            hint.id = `${form.id}-${name}-api-error`;
+            hint.dataset.apiError = "";
+            hint.textContent = Array.isArray(messages) ? messages.join(" ") : String(messages);
+            control.setAttribute("aria-invalid", "true");
+            const ids = control.getAttribute("aria-describedby");
+            control.setAttribute("aria-describedby", [ids, hint.id].filter(Boolean).join(" "));
+            control.insertAdjacentElement("afterend", hint);
+            firstInvalid ||= control;
+        }
+        const feedback = form.querySelector("[data-form-feedback]");
+        if (feedback) {
+            feedback.hidden = false;
+            feedback.textContent = firstInvalid ? "Please check the highlighted fields." : error.message;
+        }
+        (firstInvalid || feedback)?.focus();
+    },
     async write(url, method, payload) {
         const response = await fetch(url, {
             method,
@@ -40,7 +76,10 @@ window.PortfolioUI = {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
             const messages = Object.values(data).flat().filter(value => typeof value === "string");
-            throw new Error(messages.join(" ") || `Request failed (HTTP ${response.status}).`);
+            const error = new Error(messages.join(" ") || `Request failed (HTTP ${response.status}).`);
+            error.status = response.status;
+            error.fields = response.status === 400 ? data : {};
+            throw error;
         }
         return data;
     },
