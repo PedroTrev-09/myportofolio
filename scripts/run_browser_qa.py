@@ -55,7 +55,11 @@ with tempfile.TemporaryDirectory(prefix="myportofolio-qa-") as folder:
             else:
                 raise RuntimeError("QA server did not start")
             env = {**os.environ, "QA_URL": base, "QA_PASSWORD": "temporary-browser-qa"}
-            subprocess.run([os.environ.get("NODE_BINARY", "node"), "scripts/qa_browser.cjs"], env=env, check=True)
+            browser_scripts = ["scripts/qa_browser.cjs"]
+            if "--assignment-6" in sys.argv:
+                browser_scripts.append("scripts/qa_ia6_browser.cjs")
+            for script in browser_scripts:
+                subprocess.run([os.environ.get("NODE_BINARY", "node"), script], env=env, check=True)
         finally:
             server.terminate()
             server.wait(timeout=10)
