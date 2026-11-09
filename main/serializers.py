@@ -9,6 +9,14 @@ class PlainTextModelSerializer(serializers.ModelSerializer):
     """Forms and APIs share rules, but each boundary runs its own validation."""
     text_fields = ()
 
+    @staticmethod
+    def validate_plain_text(value):
+        """Share form rules while reporting errors through DRF's validation boundary."""
+        try:
+            return plain_text(value)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(error.messages) from error
+
     def validate(self, attrs):
         errors = {}
         for field in self.text_fields:
@@ -56,7 +64,7 @@ class ProjectSerializer(StarredModelSerializer):
 
 
 class ExperienceSerializer(StarredModelSerializer):
-    text_fields = ("title", "location", "description")
+    # Field-level hooks are deliberate: DRF collects errors for all supplied text fields.
     category_display = serializers.CharField(source="get_category_display", read_only=True)
     is_ongoing = serializers.BooleanField(read_only=True)
 
@@ -66,7 +74,17 @@ class ExperienceSerializer(StarredModelSerializer):
                   "started_at", "ended_at", "is_ongoing", "star_count", "is_starred", "starred_by_names"]
         read_only_fields = ["id"]
 
+    def validate_title(self, value):
+        return self.validate_plain_text(value)
+
+    def validate_location(self, value):
+        return self.validate_plain_text(value)
+
+    def validate_description(self, value):
+        return self.validate_plain_text(value)
+
     def validate(self, attrs):
+        # PATCH must compare supplied dates with the retained values on the instance.
         attrs = super().validate(attrs)
         start = attrs.get("started_at", getattr(self.instance, "started_at", None))
         end = attrs.get("ended_at", getattr(self.instance, "ended_at", None))
